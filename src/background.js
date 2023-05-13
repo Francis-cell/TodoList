@@ -1,9 +1,11 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+const path = require('path');
+import { app, protocol, BrowserWindow , Tray, Menu} from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const iconPath = path.join(__dirname, "../src/assets/images/icos/TODO.ico")
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -13,6 +15,8 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
+    // 去掉自带的顶部区域
+    frame: false,
     width: 800,
     height: 600,
     webPreferences: {
@@ -24,6 +28,11 @@ async function createWindow() {
     }
   })
 
+  // 打开开发者工具
+  win.webContents.openDevTools();
+  // 关闭菜单栏工具
+  win.removeMenu();
+
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
@@ -33,6 +42,33 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+
+  // 实例化一个tray对象，构造函数的唯一参数是需要在托盘中显示的图标url
+  const tray = new Tray(iconPath)
+
+  // 鼠标移到托盘中应用程序的图标上时，显示的文本
+  tray.setToolTip('TODO List')
+
+  // 点击图标的响应事件，这里是切换主窗口的显示和隐藏
+  tray.on('click', () => {
+    if(win.isVisible()){
+      win.hide()
+    }else{
+      win.show()
+    }
+  })
+
+  // 右键点击图标时，出现的菜单，通过Menu.buildFromTemplate定制，这里只包含退出程序的选项。
+  tray.on('right-click', () => {
+    const menuConfig = Menu.buildFromTemplate([
+      {
+        label: '退出',
+        click: () => app.quit()
+      }
+    ])
+    tray.popUpContextMenu(menuConfig)
+  })
 }
 
 // Quit when all windows are closed.
