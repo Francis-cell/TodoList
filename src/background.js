@@ -1,7 +1,8 @@
 'use strict'
 
 const path = require('path');
-import { app, protocol, BrowserWindow , Tray, Menu} from 'electron'
+let win;
+import { app, protocol, BrowserWindow , Tray, Menu, ipcMain} from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -14,10 +15,10 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     // 去掉自带的顶部区域
     frame: false,
-    width: 800,
+    width: 350,
     height: 600,
     webPreferences: {
       
@@ -28,15 +29,13 @@ async function createWindow() {
     }
   })
 
-  // 打开开发者工具
-  win.webContents.openDevTools();
   // 关闭菜单栏工具
   win.removeMenu();
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    // if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
@@ -68,6 +67,11 @@ async function createWindow() {
       }
     ])
     tray.popUpContextMenu(menuConfig)
+  });
+
+  ipcMain.on('close-window', () => {
+    win.hide();
+    app.quit();
   })
 }
 
@@ -98,7 +102,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
-  createWindow()
+  createWindow();
 })
 
 // Exit cleanly on request from parent process in development mode.
