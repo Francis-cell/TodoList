@@ -1,5 +1,58 @@
+/*!**==============整体样式===============*!*/
+
+body {
+    /*支持无边框窗口可拖拽功能*/
+    -webkit-app-region: drag;
+    display: flex;
+    flex-direction: column;
+    /*align-items: center;*/
+    /*justify-content: center;*/
+    min-height: 100vh;
+    margin: 0;
+}
+
+
+
+/*关闭按钮的可拖拽功能*/
+.enable-click {
+    -webkit-app-region: no-drag;
+}
+
+
+/**==============标题部分样式===============*/
+.content-header {
+    align-items: center;
+    justify-content: center;
+}
+
+/** “代办任务”文字样式 */
+h2 {
+    margin-top: -40px;
+    font-size: 20px;
+    color: black;
+    cursor: pointer;
+}
+
+
+
+/** 右上角关闭按钮 */
+#close-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    color: black;
+    cursor: pointer;
+}
+
+
+/**==============任务录入样式===============*/
+/** todoList 任务输入框样式 */
 #todo-form {
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 }
 
 #todo-input {
@@ -7,27 +60,89 @@
     border-radius: 5px;
     border: none;
     outline: none;
+    width: 200px;
 }
 
 #todo-input:focus {
     box-shadow: 0 0 5px #007bff;
 }
 
+
+
+/** 提交按钮样式 */
+button[type="submit"] {
+    margin-left: 5px;
+    border-radius: 5px;
+    height: 35px;
+    background-color: #00BFFF;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/**==============任务内容样式===============*/
+/** todo部分整体样式 */
+.container {
+    width: 200px;
+    position: relative;
+}
+/** todoInput样式 */
+.todoInput {
+    float: left;
+}
+
+/** todoContent 内容样式 */
 .todo-item {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
 }
 
+.dropdown {
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown_top {
+    width: 230px;
+}
+
+.dropdown_btm {
+    width: 230px;
+    height: 500px;
+    background-color: #F0F8FF;
+    border-radius: 10px;
+}
+
+.open {
+    display: block;
+}
+
+.close {
+    display: none;
+}
+
+label {
+    margin-left: 24px;
+    float: left;
+}
+
+/** 下箭头点击之后展示的内容 */
+
+
+
+
+
+
 .todo-item .checkbox {
+    float: left;
     width: 20px;
     height: 20px;
     border-radius: 50%;
     margin-right: 10px;
     border: 2px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     cursor: pointer;
 }
 
@@ -43,75 +158,20 @@
 }
 
 .todo-item .todo-label {
-    flex: 1;
     font-size: 16px;
     color: #333;
 }
 
-body {
-    /*支持无边框窗口可拖拽功能*/
-    -webkit-app-region: drag;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-}
-
-/*关闭按钮的可拖拽功能*/
-.enable-click {
-    -webkit-app-region: no-drag;
-}
-
-h1 {
-    text-align: center;
-}
-
-#todo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    max-width: 600px;
-    margin-top: calc(100vh / 3);
-}
-
-#todo-form {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-#todo-input {
-    width: 200px;
-}
-
-button[type="submit"] {
+button.delete {
     margin-left: 5px;
     border-radius: 5px;
-    height: 35px;
-    background-color: #00BFFF;
+    height: 25px;
+    background-color: #FFA07A;
     border: none;
-    color: white;
+    color: #595b5c;
     font-weight: bold;
     cursor: pointer;
-}
-
-/** 右上角关闭按钮 */
-#close-button {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    font-size: 20px;
-    color: black;
-    cursor: pointer;
-}
-
-
-button.delete {
-    background-color: #FFA07A;
+    float: right;
 }
 
 ul#todo-list {
