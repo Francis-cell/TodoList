@@ -43,16 +43,17 @@
 
                             <button
                                     class="delete delete-button"
-                                    @click="showVal()"
+                                    @click="showVal(item)"
                             >
-                                展示
+                                {{ item.showStatus ? '上' : '下' }}
                             </button>
                         </div>
 
                         <!-- 下箭头展开位置 -->
-                        <div class="dropdown_btm">
+                        <div v-if="item.showStatus" class="dropdown_btm">
                             <!-- 内部的内容区域 -->
                         </div>
+
                     </div>
 
 
@@ -112,7 +113,7 @@
 
                     if (checkList.length === 0) {
                         // 将数据加入到 todoListValues 中
-                        this.todoListValues.push({label: todoText});
+                        this.todoListValues.push({label: todoText, showStatus: false});
                         // 清空输入框中的内容
                         this.todoInput = '';
                     }
@@ -127,16 +128,12 @@
                 })
             },
             // 展示下拉框部分的内容方法
-            showVal() {
-                // if ($(".dropdown_btm").hasClass("open")) {
-                //     $(".dropdown_btm").removeClass("open");
-                //     $(".dropdown_btm").addClass("close");
-                // }
-                //
-                // else if ($(".dropdown_btm").hasClass("close")) {
-                //     $(".dropdown_btm").removeClass("close");
-                //     $(".dropdown_btm").addClass("open");
-                // }
+            showVal(item) {
+                for (let i = 0; i < this.todoListValues.length; i++) {
+                    if (this.todoListValues[i].label === item.label) {
+                        this.todoListValues[i].showStatus = !this.todoListValues[i].showStatus;
+                    }
+                }
             },
             // 页面关闭逻辑
             closeWindow() {
