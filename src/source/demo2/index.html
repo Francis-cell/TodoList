@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>可拖动的单元</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .unit {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 300px;
+            height: 50px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 0 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .unit:hover {
+            background-color: #d9d9d9;
+        }
+
+        .unit.selected {
+            background-color: rgb(85, 41, 220);
+            color: #fff;
+        }
+
+        .unit input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .unit input[type="checkbox"]:checked+label {
+            text-decoration: line-through;
+        }
+
+        .unit .delete-button {
+            border: none;
+            background: none;
+            color: #f44336;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .unit:hover .delete-button {
+            opacity: 1;
+        }
+
+        .unit.animate-remove {
+            animation: removeUnit 0.3s ease forwards;
+        }
+
+        @keyframes removeUnit {
+            0% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="unit">
+    <input type="checkbox">
+    <label>单元1</label>
+    <button class="delete-button">X</button>
+</div>
+<div class="unit">
+    <input type="checkbox">
+    <label>单元2</label>
+    <button class="delete-button">X</button>
+</div>
+<div class="unit">
+    <input type="checkbox">
+    <label>单元3</label>
+    <button class="delete-button">X</button>
+</div>
+
+<script>
+    const units = document.querySelectorAll('.unit');
+    let isDragging = false;
+    let dragTarget = null;
+
+    units.forEach((unit) => {
+        unit.addEventListener('click', () => {
+            unit.classList.toggle('selected');
+            const checkbox = unit.querySelector('input[type="checkbox"]');
+            const label = unit.querySelector('label');
+            if (checkbox.checked) {
+                checkbox.checked = false;
+                label.style.textDecoration = '';
+            } else {
+                checkbox.checked = true;
+                label.style.textDecoration = 'line-through';
+            }
+        });
+
+        unit.addEventListener('mousedown', () => {
+            isDragging = true;
+            dragTarget = unit;
+        });
+
+        unit.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragTarget = null;
+        });
+
+        unit.addEventListener('mousemove', (e) => {
+            if (isDragging && dragTarget !== null) {
+                const unitsArr = Array.from(units);
+                const currentIndex = unitsArr.indexOf(dragTarget);
+                const mouseY = e.clientY;
+
+                unitsArr                .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+
+                const targetIndex = unitsArr.findIndex((el) => el === unit);
+                if (currentIndex !== -1 && targetIndex !== -1 && currentIndex !== targetIndex) {
+                    if (currentIndex < targetIndex) {
+                        dragTarget.parentNode.insertBefore(dragTarget, unit.nextSibling);
+                    } else {
+                        dragTarget.parentNode.insertBefore(dragTarget, unit);
+                    }
+                }
+            }
+        });
+
+        unit.querySelector('.delete-button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            unit.classList.add('animate-remove');
+            setTimeout(() => {
+                unit.remove();
+            }, 300);
+        });
+    });
+
+</script>
+</body>
+</html>

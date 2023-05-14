@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .unit {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+
+        .unit:hover {
+            background-color: rgb(199, 186, 238);
+            color: #fff;
+        }
+
+        .unit.checked {
+            background-color: rgb(85, 41, 220);
+            color: #fff;
+        }
+
+        .unit.animate-remove {
+            animation: removeUnit 0.3s ease forwards;
+        }
+
+        @keyframes removeUnit {
+            0% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        }
+
+        .checkbox {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #999;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .checkbox.checked {
+            background-color: rgb(85, 41, 220);
+            color: #fff;
+            border-color: rgb(85, 41, 220);
+            transform: rotate(45deg);
+        }
+
+        .label {
+            flex-grow: 1;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            hyphens: auto;
+            padding-right: 10px;
+        }
+
+        .label.checked {
+            text-decoration: line-through;
+        }
+
+        .delete-button {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background-color: transparent;
+            color: red;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .delete-button:hover {
+            transform: scale(1.2);
+        }
+
+        #todo-list {
+            min-height: 200px;
+            border: 2px dashed #999;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        #todo-list .unit:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        #todo-list .unit .checkbox {
+            order: 1;
+        }
+
+        #todo-list .unit .label {
+            order: 2;
+        }
+
+        #todo-list .unit .delete-button {
+            order: 3;
+            margin-left: auto;
+            margin-right: 5px;
+            transform-origin: center;
+        }
+
+        #todo-list .unit .checkbox.checked,
+        #todo-list .unit .label.checked {
+            transition: none;
+        }
+
+        #todo-list .unit .checkbox.checked {
+            transform: rotate(45deg) scale(1);
+        }
+
+        #todo-list .unit .label.checked {
+            text-decoration: line-through;
+        }
+
+        #todo-list .unit.dragging {
+            opacity: 0.5;
+        }
+
+        #todo-list .unit.placeholder {
+            opacity: 0;
+            border: 2px dashed #999;
+            border-radius: 5px;
+            height: 40px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="todo-list"></div>
+
+<script>
+    const todoList = document.getElementById('todo-list');
+
+    function createUnit(text) {
+        const unit = document.createElement('div');
+        unit.classList.add('unit');
+
+        const checkbox = document.createElement('div');
+        checkbox.classList.add('checkbox');
+        checkbox.innerHTML = '&#10003;';
+        unit.appendChild(checkbox);
+
+        const label = document.createElement('div');
+        label.classList.add('label');
+        label.textContent = text;
+        unit.appendChild(label);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('delete-button');
+        deleteButton.innerHTML = 'X';
+        unit.appendChild(deleteButton);
+
+        return unit;
+    }
+
+    function toggleUnit(unit) {
+        unit.classList.toggle('checked');
+        const checkbox = unit.querySelector('.checkbox');
+        checkbox.classList.toggle('checked');
+        const label = unit.querySelector('.label');
+        label.classList.toggle('checked');
+    }
+
+    function deleteUnit(unit) {
+        unit.remove();
+    }
+
+    let isDragging = false;
+    let dragTarget = null;
+    let placeholder = null;
+
+    function handleDragStart(e) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', e.currentTarget.outerHTML);
+        dragTarget = e.currentTarget;
+        placeholder = document.createElement('div');
+        placeholder.classList.add('unit');
+        placeholder.style.opacity = '0';
+        dragTarget.style.opacity = '0.5';
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        if (e.target.classList.contains('unit')) {
+            const rect = e.target.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            if (y < rect.height / 2) {
+                e.target.parentNode.insertBefore(placeholder, e.target);
+            } else {
+                e.target.parentNode.insertBefore(placeholder, e.target.nextSibling);
+            }
+        }
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDragEnd(e) {
+        e.preventDefault();
+        dragTarget.style.opacity = '1';
+        placeholder.parentNode.removeChild(placeholder);
+        isDragging = false;
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        if (e.target.classList.contains('unit')) {
+            e.target.parentNode.insertBefore(dragTarget, e.target);
+        } else {
+            e.target.parentNode.appendChild(dragTarget);
+        }
+    }
+
+    function bindEvents(unit) {
+        const checkbox = unit.querySelector('.checkbox');
+        const deleteButton = unit.querySelector('.delete-button');
+
+        unit.addEventListener('click', function () {
+            toggleUnit(unit);
+        });
+
+        checkbox.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleUnit(unit);
+        });
+
+        deleteButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            deleteUnit(unit);
+        });
+
+        unit.addEventListener('dragstart', handleDragStart);
+        unit.addEventListener('dragenter', handleDragEnter);
+        unit.addEventListener('dragover', handleDragOver);
+        unit.addEventListener('dragend', handleDragEnd);
+        unit.addEventListener('drop', handleDrop);
+    }
+
+    function addUnit(text) {
+        const unit = createUnit(text);
+        bindEvents(unit);
+        todoList.appendChild(unit);
+    }
+
+    addUnit('Task 1');
+    addUnit('Task 2');
+    addUnit('Task 3');
+</script>
+</body>
+
+</html>
+

@@ -5,7 +5,6 @@
 
 <script>
 import TodoList from './components/TodoList/TodoListMain.vue'
-
 export default {
   name: 'App',
   components: {

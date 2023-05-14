@@ -103,10 +103,17 @@ button[type="submit"] {
 .dropdown {
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s, background-color 0.3s;
 }
 
 .dropdown_top {
     width: 230px;
+    /** 悬浮效果 */
+    transition: transform 0.3s;
+}
+
+.dropdown_top:hover {
+    transform: scale(1.1);
 }
 
 .dropdown_btm {
@@ -114,8 +121,15 @@ button[type="submit"] {
     margin-left: 5px;
     width: 250px;
     height: 230px;
-    background-color: #dbdbdb;
+    background-color: #ffffff;
     border-radius: 10px;
+    border: 2px solid #e6e6e6;
+    /* 悬浮效果 */
+    transition: transform 0.3s;
+}
+
+.dropdown_btm:hover {
+    transform: scale(1.1);
 }
 
 .open {
@@ -127,17 +141,16 @@ button[type="submit"] {
 }
 
 label {
-    margin-left: 24px;
+    display: flex;
     float: left;
+    min-height: 20px;
+    padding-left: 5px;
+    margin-bottom: 0;
+    font-weight: 400;
+    cursor: pointer;
 }
 
 /** 下箭头点击之后展示的内容 */
-
-
-
-
-
-
 .todo-item .checkbox {
     float: left;
     width: 20px;
@@ -148,7 +161,7 @@ label {
     cursor: pointer;
 }
 
-.todo-item .checkbox.checked {
+.todo-item .checkbox.hover {
     background-color: #007bff;
     border-color: #007bff;
 }
@@ -174,6 +187,49 @@ button.delete {
     font-weight: bold;
     cursor: pointer;
     float: right;
+}
+
+.dropdown_top.clicked {
+    animation: rotateAnimation 1s ease-in-out;
+}
+
+@keyframes rotateAnimation {
+    0% {
+        transform: rotateX(0);
+        background-color: white;
+    }
+    30% {
+        transform: rotateX(30deg);
+        background-color: skyblue;
+    }
+    60% {
+        transform: rotateX(-30deg);
+        background-color: skyblue;
+    }
+    100% {
+        transform: rotateX(0);
+        background-color: white;
+    }
+}
+
+/** 字体中间贯穿一条横线 */
+.text-with-line {
+    text-decoration: line-through;
+}
+
+.dropdown.animate-remove {
+    animation: removeUnit 0.5s ease forwards;
+}
+
+@keyframes removeUnit {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
 }
 
 ul#todo-list {
@@ -213,4 +269,21 @@ ul#todo-list li:nth-child(6n) .dropdown_top{
 
 ul#todo-list li:nth-child(7n) .dropdown_top{
     background-color: rgba(148, 0, 211, 0.5);
+}
+
+/** ============= 额外属性配置 =============== */
+/** 元素上下居中对齐 */
+.element-center {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+/** 方框图标类 */
+.square-frame {
+    background-image: url("../assets/images/icos/方框未选.ico");
+}
+
+/** 完成图标类 */
+.finish {
+    background-image: url("../assets/images/icos/对号.png");
 }
