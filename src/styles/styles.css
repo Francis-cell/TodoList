@@ -271,6 +271,18 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
     background-color: rgba(148, 0, 211, 0.5);
 }
 
+/** 大文本框样式 */
+.textarea {
+    width: 200px;
+    height: 160px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    margin-top: 10px;
+}
+
 /** ============= 额外属性配置 =============== */
 /** 元素上下居中对齐 */
 .element-center {

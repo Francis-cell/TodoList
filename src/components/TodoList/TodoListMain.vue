@@ -56,8 +56,16 @@
                         <!-- 下箭头展开位置 -->
                         <div v-if="item.showStatus" class="dropdown_btm">
                             <!-- 内部的内容区域 -->
-                            <!-- 时间选择器 -->
-
+                            <!-- 时间选择器（目前不需要时间选择器，默认当天的24点为完成任务的时间） -->
+                            <div>
+                                任务剩余时间：{{ getTimeRemaining() }} 分钟
+                            </div>
+                            <!-- 备注 -->
+                            <textarea
+                               class="textarea"
+                               :value="item.remark"
+                               @blur="updateItemRemark($event.target.value, item)"
+                            ></textarea>
                         </div>
 
                     </div>
@@ -122,7 +130,14 @@
                     }
                 }
             },
-
+            // 添加任务项的备注信息
+            updateItemRemark(value, item) {
+                // 获取下标值
+                let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
+                if (indexTmp !== -1) {
+                    this.todoListValues[indexTmp].remark = value;
+                }
+            },
             /** 动画部分 */
             // 删除录入的任务内容
             deleteTodoSelected(event, item) {
@@ -159,17 +174,14 @@
 
                 if (this.selectedOption.length !== 0) {
                     // 点击的时候，如果原本被选中列表中有当前元素，则删除，没有则添加
-                    for (let i = 0; i < this.selectedOption.length; i++) {
-                        // 说明当前被选中列表中有当前元素，则移除元素
-                        if (this.selectedOption[i].label === item.label) {
-                            this.selectedOption.splice(i, 1);
-
-                            // 将当前行元素删除横线属性
-                            if (labelSpan) {
-                                labelSpan.classList.toggle('text-with-line');
-                            }
-                            return;
+                    let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
+                    if (indexTmp !== -1) {
+                        this.selectedOption.splice(i, 1);
+                        // 删除当前行元素横线属性
+                        if (labelSpan) {
+                            labelSpan.classList.toggle('text-with-line');
                         }
+                        return;
                     }
                 }
                 this.selectedOption.push(item);
@@ -181,10 +193,9 @@
             },
             // 展示下拉框部分的内容方法
             showVal(item) {
-                for (let i = 0; i < this.todoListValues.length; i++) {
-                    if (this.todoListValues[i].label === item.label) {
-                        this.todoListValues[i].showStatus = !this.todoListValues[i].showStatus;
-                    }
+                let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
+                if (indexTmp !== -1) {
+                    this.todoListValues[indexTmp].showStatus = !this.todoListValues[indexTmp].showStatus;
                 }
             },
 
@@ -196,32 +207,45 @@
             },
 
 
-            // 检查当前任务是否已经完成
-            checkFinished(item) {
-                for (let i = 0; i < this.selectedOption.length; i++) {
-                    if (this.selectedOption[i].label === item.label) {
-                        // 如果找到了直接返回元素在 selectedOption 中的下标，反之直接返回-1
+            /** 多次使用的方法封装 */
+            // 获取任务在对应的列表中的下标的值
+            getIndexWithList(label, lists) {
+                for (let i = 0; i < lists.length; i++) {
+                    if (lists[i].label === label) {
                         return i;
                     }
                 }
                 return -1;
             },
+            // 检查当前任务是否已经完成
+            checkFinished(item) {
+                return this.getIndexWithList(item.label, this.selectedOption);
+            },
             // 从整个任务列表中的元素中删除指定元素
             deleteItemFromTodoListValues(item) {
-                for (let i = 0; i < this.todoListValues.length; i++) {
-                    if (this.todoListValues[i].label === item.label) {
-                        // 移除指定元素
-                        this.todoListValues.splice(i, 1);
-                    }
+                let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
+                // 移除指定元素
+                if (indexTmp !== -1) {
+                    this.todoListValues.splice(indexTmp, 1);
                 }
             },
             // 从被选中列表中删除指定元素
             deleteItemFromFinished(item) {
-                for (let i = 0; i < this.selectedOption.length; i++) {
-                    if (this.selectedOption[i].label === item.label) {
-                        this.selectedOption.splice(i, 1);
-                    }
+                let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
+                // 移除指定元素
+                if (indexTmp !== -1) {
+                    this.selectedOption.splice(indexTmp, 1);
                 }
+            },
+
+
+            /** 辅助方法 */
+            // 获取当前距离今天24点剩余的时间
+            getTimeRemaining() {
+                let now = new Date();
+                let midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                let remainingTime = Math.floor((midnight - now) / 1000 / 60); // 毫秒转换为分钟
+                return remainingTime;
             }
         }
     }
