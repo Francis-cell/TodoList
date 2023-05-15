@@ -27,6 +27,7 @@
                                     :value="item.label"
                                     @click="addToSelectedOptions($event, item)"
                                 >
+<!--                                    <img :src="(getIndexWithList(item.label, this.selectedOption) !== -1) ? ico_finish : ico_squareFrame" alt="Icon">-->
                                     <!-- <i :class="selectItemSelectedStatus(item) ? 'finish' : 'square-frame'"></i>-->
                                     {{ checkFinished(item) !== -1 ? '✓' : '□' }}
                                 </div>
@@ -39,14 +40,14 @@
 
                             <!-- 删除按钮 -->
                             <button
-                                    class="delete delete-button element-center"
+                                    class="delete element-center"
                                     @click="deleteTodoSelected($event, item)"
                             >
                                 ×
                             </button>
 
                             <button
-                                    class="delete delete-button element-center"
+                                    class="showDetail element-center"
                                     @click="showVal(item)"
                             >
                                 {{ item.showStatus ? '▲' : '▼' }}
@@ -57,10 +58,12 @@
                         <div v-if="item.showStatus" class="dropdown_btm">
                             <!-- 内部的内容区域 -->
                             <!-- 时间选择器（目前不需要时间选择器，默认当天的24点为完成任务的时间） -->
-                            <div>
-                                任务剩余时间：{{ getTimeRemaining() }} 分钟
+                            <!-- 如果当前的任务已经在完成队列中，则不再计时 -->
+                            <div v-if="getIndexWithList(item.label, this.selectedOption) === -1">
+                                任务剩余时间：{{ getTimeRemaining() }}
                             </div>
                             <!-- 备注 -->
+                            备注：
                             <textarea
                                class="textarea"
                                :value="item.remark"
@@ -79,6 +82,9 @@
 </template>
 
 <script>
+    // 引入需要的图标
+    import ico_squareFrame from '../../assets/images/icos/方框未选.png';
+    import ico_finish from '../../assets/images/icos/对号.png';
     import { ipcRenderer } from 'electron';
     export default {
         name: "TodoList",
@@ -89,10 +95,19 @@
                 // 用来存储页面上的任务列表数据
                 todoListValues: [],
                 // 被选中列表的值
-                selectedOption: []
+                selectedOption: [],
+
+                // 页面图标
+                // 方框图标
+                ico_squareFrame: '',
+                // 对号图标
+                ico_finish: ''
             }
         },
         mounted() {
+            // 引入图标
+            this.ico_finish = ico_finish;
+            this.ico_squareFrame = ico_squareFrame;
         },
         watch: {
             // todoListValues: {
@@ -176,7 +191,7 @@
                     // 点击的时候，如果原本被选中列表中有当前元素，则删除，没有则添加
                     let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
                     if (indexTmp !== -1) {
-                        this.selectedOption.splice(i, 1);
+                        this.selectedOption.splice(indexTmp, 1);
                         // 删除当前行元素横线属性
                         if (labelSpan) {
                             labelSpan.classList.toggle('text-with-line');
@@ -193,6 +208,14 @@
             },
             // 展示下拉框部分的内容方法
             showVal(item) {
+                // 首先关闭当前已经打开详情区域的任务详情
+                for (let i = 0; i < this.todoListValues.length; i++) {
+                    if (this.todoListValues[i].showStatus && this.todoListValues[i].label !== item.label) {
+                        this.todoListValues[i].showStatus = false;
+                    }
+                }
+
+                // 然后再执行当前任务详情的打开
                 let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
                 if (indexTmp !== -1) {
                     this.todoListValues[indexTmp].showStatus = !this.todoListValues[indexTmp].showStatus;
@@ -243,9 +266,19 @@
             // 获取当前距离今天24点剩余的时间
             getTimeRemaining() {
                 let now = new Date();
-                let midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-                let remainingTime = Math.floor((midnight - now) / 1000 / 60); // 毫秒转换为分钟
-                return remainingTime;
+                let midnight = new Date();
+                midnight.setHours(24, 0, 0, 0); // 设置为今天的 24 点
+
+                let remainingTime = midnight - now; // 计算剩余的毫秒数
+
+                // 将剩余毫秒数转换为小时和分钟
+                let hours = Math.floor(remainingTime / (1000 * 60 * 60));
+                let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+
+                // 格式化时间为 "小时:分钟" 形式
+                let formattedTime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min`;
+
+                return formattedTime;
             }
         }
     }

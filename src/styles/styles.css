@@ -41,6 +41,8 @@ h2 {
     top: 20px;
     right: 20px;
     font-size: 20px;
+    background-color: rgba(255, 160, 122, 0);
+    border: none;
     color: black;
     cursor: pointer;
 }
@@ -181,7 +183,19 @@ button.delete {
     margin-left: 5px;
     border-radius: 5px;
     height: 25px;
-    background-color: #FFA07A;
+    background-color: rgba(255, 160, 122, 0);
+    border: none;
+    color: #595b5c;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+}
+
+button.showDetail {
+    margin-left: 5px;
+    border-radius: 5px;
+    height: 25px;
+    background-color: rgba(255, 160, 122, 0);
     border: none;
     color: #595b5c;
     font-weight: bold;
@@ -274,7 +288,7 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 /** 大文本框样式 */
 .textarea {
     width: 200px;
-    height: 160px;
+    height: 150px;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
@@ -297,5 +311,5 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 
 /** 完成图标类 */
 .finish {
-    background-image: url("../assets/images/icos/对号.png");
+    background-image: url("../assets/images/icos/对号.ico");
 }
