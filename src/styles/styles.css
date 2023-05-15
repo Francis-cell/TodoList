@@ -297,6 +297,33 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
     margin-top: 10px;
 }
 
+/** 自定义滚动条属性 */
+/* 设置最大高度和启用垂直滚动条 */
+.scrollable-container {
+    height: 380px;
+    max-height: 380px; /* 设置最大高度 */
+    overflow-y: auto; /* 启用垂直滚动条 */
+}
+
+/* 自定义滚动条样式 */
+.scrollable-container::-webkit-scrollbar {
+    width: 8px; /* 设置滚动条宽度 */
+}
+
+.scrollable-container::-webkit-scrollbar-track {
+    background-color: #f5f5f5; /* 设置滚动条轨道背景颜色 */
+}
+
+.scrollable-container::-webkit-scrollbar-thumb {
+    background-color: #888; /* 设置滚动条滑块颜色 */
+    border-radius: 4px; /* 设置滚动条滑块圆角 */
+}
+
+.scrollable-container::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* 设置滚动条滑块悬停时颜色 */
+}
+
+
 /** ============= 额外属性配置 =============== */
 /** 元素上下居中对齐 */
 .element-center {
@@ -312,4 +339,48 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 /** 完成图标类 */
 .finish {
     background-image: url("../assets/images/icos/对号.ico");
+}
+
+
+
+/** ========= 主程序样式 ========== */
+.task-container {
+    width: 300px;
+    height: 70px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80%;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.left-section,
+.right-section {
+    flex: 1;
+    padding: 10px;
+}
+
+.left-section {
+    background-color: #ffcccc;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.right-section {
+    background-color: #ccffcc;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+h3 {
+    margin: 0;
 }

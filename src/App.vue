@@ -1,14 +1,17 @@
 <template>
   <!-- 引入主组件 -->
-  <TodoList />
+<!--  <TodoList />-->
+  <TodoMain />
 </template>
 
 <script>
-import TodoList from './components/TodoList/TodoListMain.vue'
+// import TodoList from './components/TodoList/TodoListMain.vue'
+import TodoMain from "@/views/todoMain/todoMain";
 export default {
   name: 'App',
   components: {
-    TodoList
+    // TodoList,
+    TodoMain
   }
 }
 </script>

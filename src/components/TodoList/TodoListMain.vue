@@ -10,7 +10,7 @@
                 <button class="enable-click" type="submit" @click="addTodoList">ADD</button>
             </form>
         </div>
-        <div id="content-todo">
+        <div id="content-todo" class="scrollable-container">
             <ul class="enable-click" id="todo-list">
                 <li
                    v-for="(item, index) in todoListValues"
@@ -18,7 +18,7 @@
                 >
                     <div class="dropdown">
                         <!-- TODO前半部分内容 -->
-                        <div class="dropdown_top" @click="changeCheckedStatus($event)">
+                        <div class="dropdown_top" @click="changeCheckedStatus($event, item)">
                             <label class="element-center">
                                 <!-- 复选框 -->
                                 <div
@@ -27,9 +27,12 @@
                                     :value="item.label"
                                     @click="addToSelectedOptions($event, item)"
                                 >
-<!--                                    <img :src="(getIndexWithList(item.label, this.selectedOption) !== -1) ? ico_finish : ico_squareFrame" alt="Icon">-->
-                                    <!-- <i :class="selectItemSelectedStatus(item) ? 'finish' : 'square-frame'"></i>-->
-                                    {{ checkFinished(item) !== -1 ? '✓' : '□' }}
+                                    <!-- 方框 -->
+<!--                                    <svg-icon :iconClass="'fangkuangweixuan'" v-if="(getIndexWithList(item.label, this.selectedOption) === -1)"/>-->
+                                    <!-- 对号 -->
+<!--                                    <svg-icon :iconClass="'duihao'" v-if="(getIndexWithList(item.label, this.selectedOption) !== -1)"/>-->
+
+                                {{ checkFinished(item) !== -1 ? '✓' : '□' }}
                                 </div>
                                 <!-- 文字 -->
                                 <span
@@ -55,7 +58,7 @@
                         </div>
 
                         <!-- 下箭头展开位置 -->
-                        <div v-if="item.showStatus" class="dropdown_btm">
+                        <div v-if="item.showStatus" :style="divStyle" class="dropdown_btm">
                             <!-- 内部的内容区域 -->
                             <!-- 时间选择器（目前不需要时间选择器，默认当天的24点为完成任务的时间） -->
                             <!-- 如果当前的任务已经在完成队列中，则不再计时 -->
@@ -78,16 +81,16 @@
                 </li>
             </ul>
         </div>
+        <div class="bottom"></div>
     </div>
 </template>
 
 <script>
-    // 引入需要的图标
-    import ico_squareFrame from '../../assets/images/icos/方框未选.png';
-    import ico_finish from '../../assets/images/icos/对号.png';
     import { ipcRenderer } from 'electron';
     export default {
         name: "TodoList",
+        components: {
+        },
         data() {
             return {
                 // 任务输入input框中的值
@@ -97,17 +100,12 @@
                 // 被选中列表的值
                 selectedOption: [],
 
-                // 页面图标
-                // 方框图标
-                ico_squareFrame: '',
-                // 对号图标
-                ico_finish: ''
+                divStyle: {
+                    backgroundColor: '',
+                },
             }
         },
         mounted() {
-            // 引入图标
-            this.ico_finish = ico_finish;
-            this.ico_squareFrame = ico_squareFrame;
         },
         watch: {
             // todoListValues: {
@@ -153,6 +151,8 @@
                     this.todoListValues[indexTmp].remark = value;
                 }
             },
+
+
             /** 动画部分 */
             // 删除录入的任务内容
             deleteTodoSelected(event, item) {
@@ -169,19 +169,24 @@
                 }
             },
             // 改变被点击元素的样式
-            changeCheckedStatus(event) {
+            changeCheckedStatus(event, item) {
                 // 找到最近一个拥有“dropdown”类的元素
                 let parentElement = event.target.closest('.dropdown_top');
                 if (parentElement) {
                     parentElement.classList.add('clicked');
                     parentElement.addEventListener('animationend', () => {
+                        let indexTmp = this.getIndexWithList(item.label, this.selectedOption)
+                        if ( indexTmp > -1) {
+                            this.selectedOption.splice(indexTmp, 1);
+                        } else {
+                            this.selectedOption.push(item);
+                        }
                         parentElement.classList.remove('clicked');
                     }, { once: true });
                 }
             },
             // 选中当前行(将当前行从被选中todoList列表中执行删除或者添加操作)
             addToSelectedOptions(event, item) {
-                debugger;
                 // 找到需要添加横线或者删除横线的元素
                 let clickedElement = event.target;
                 let parentElement = clickedElement.parentElement;
@@ -218,6 +223,7 @@
                 // 然后再执行当前任务详情的打开
                 let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
                 if (indexTmp !== -1) {
+                    this.setRandomColor();
                     this.todoListValues[indexTmp].showStatus = !this.todoListValues[indexTmp].showStatus;
                 }
             },
@@ -279,7 +285,34 @@
                 let formattedTime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min`;
 
                 return formattedTime;
-            }
+            },
+            // 设置颜色
+            setRandomColor() {
+                const randomColor = this.getRandomColor();
+                this.divStyle.backgroundColor = randomColor;
+            },
+            // 生成一个随机下标
+            getRandomIndex(list) {
+                return Math.floor(Math.random() * list.length);
+            },
+            // 随机颜色生成方法
+            getRandomColor() {
+                // 生成随机颜色值
+                // const letters = '0123456789ABCDEF';
+                // let color = '#';
+                // for (let i = 0; i < 6; i++) {
+                //     color += letters[Math.floor(Math.random() * 16)];
+                // }
+
+                // 颜色列表
+                let colorList = ['F5F0BB', 'DBDFAA', 'B3C890', 'F6C391', 'D4ADFC', 'ECCDB4', 'E76161', 'FFE6C7', 'FFB4B4',
+                'B0DAFF', 'FDF4F5', 'E8A0BF', 'A9907E', 'D5B4B4', 'F6F1F1', '8D7B68', 'A4907C', 'C8B6A6', 'F1DEC9',
+                'F5EAEA', 'FFB84C', 'F16767', 'B9F3E4', 'FFD4D4', 'FFFBAC', 'FFB26B', '5BC0F8', '86E5FF', 'FFC6D3',
+                'FEA1BF', 'E98EAD', 'DFD3C3', 'DFD3C3', 'D0B8A8', 'DFF6FF']
+
+                let randomIndex = this.getRandomIndex(colorList);
+                return '#' + colorList[randomIndex];
+            },
         }
     }
 </script>
