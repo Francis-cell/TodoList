@@ -199,19 +199,10 @@
                     let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
                     if (indexTmp !== -1) {
                         this.selectedOption.splice(indexTmp, 1);
-                        // 删除当前行元素横线属性
-                        if (labelSpan) {
-                            labelSpan.classList.toggle('text-with-line');
-                        }
                         return;
                     }
                 }
                 this.selectedOption.push(item);
-
-                // 将当前行元素添加横线属性
-                if (labelSpan) {
-                    labelSpan.classList.toggle('text-with-line');
-                }
             },
             // 展示下拉框部分的内容方法
             showVal(item) {
