@@ -346,10 +346,9 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 /** ========= 主程序样式 ========== */
 .task-container {
     width: 300px;
-    height: 70px;
     background-color: #f5f5f5;
     border-radius: 10px;
-    padding: 10px;
+    padding: 3px;
     margin-left: auto;
     margin-right: auto;
 }

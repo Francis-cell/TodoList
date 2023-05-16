@@ -36,8 +36,13 @@
                                 </div>
                                 <!-- 文字 -->
                                 <span
-                                   class="element-center labelSpan"
-                                   style="margin-left: 10px; word-wrap: break-word; word-break: normal; width: 120px;"
+                                   :class="checkFinished(item) !== -1 ? 'element-center labelSpan text-with-line' : 'element-center labelSpan'"
+                                   style="
+                                   margin-left: 10px;
+                                   word-wrap: break-word;
+                                   word-break: normal;
+                                   width: 130px;
+                                   text-align: left"
                                 >{{item.label}}</span>
                             </label>
 
@@ -75,9 +80,6 @@
                         </div>
 
                     </div>
-
-
-
                 </li>
             </ul>
         </div>
