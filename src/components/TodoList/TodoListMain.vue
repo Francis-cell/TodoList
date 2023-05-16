@@ -15,24 +15,15 @@
                 <li
                    v-for="(item, index) in todoListValues"
                    :key="Math.random()"
+                   class="myLi"
                 >
                     <div class="dropdown">
                         <!-- TODO前半部分内容 -->
                         <div class="dropdown_top" @click="changeCheckedStatus($event, item)">
                             <label class="element-center">
                                 <!-- 复选框 -->
-                                <div
-                                    class="checkbox"
-                                    :id="index"
-                                    :value="item.label"
-                                    @click="addToSelectedOptions($event, item)"
-                                >
-                                    <!-- 方框 -->
-<!--                                    <svg-icon :iconClass="'fangkuangweixuan'" v-if="(getIndexWithList(item.label, this.selectedOption) === -1)"/>-->
-                                    <!-- 对号 -->
-<!--                                    <svg-icon :iconClass="'duihao'" v-if="(getIndexWithList(item.label, this.selectedOption) !== -1)"/>-->
-
-                                {{ checkFinished(item) !== -1 ? '✓' : '□' }}
+                                <div class="checkbox-wrapper-41">
+                                    <input type="checkbox" :checked="checkFinished(item) !== -1">
                                 </div>
                                 <!-- 文字 -->
                                 <span
@@ -41,38 +32,79 @@
                                    margin-left: 10px;
                                    word-wrap: break-word;
                                    word-break: normal;
-                                   width: 130px;
+                                   width: 90px;
                                    text-align: left"
                                 >{{item.label}}</span>
                             </label>
-
+                            <!-- 详情按钮 -->
+                            <button
+                                    class="showDetail element-center"
+                                    @click="showVal(item)"
+                            >
+                                <!-- 上箭头 -->
+                                <img
+                                        style="margin-top: 5px;"
+                                        src="../../assets/images/svg/up.svg"
+                                        v-if="item.showStatus"
+                                >
+                                <!-- 下箭头 -->
+                                <img
+                                        style="margin-top: 5px;"
+                                        src="../../assets/images/svg/down.svg"
+                                        v-if="!item.showStatus"
+                                >
+                                <!--                                {{ item.showStatus ? '▲' : '▼' }}-->
+                            </button>
                             <!-- 删除按钮 -->
                             <button
                                     class="delete element-center"
                                     @click="deleteTodoSelected($event, item)"
                             >
-                                ×
-                            </button>
-
-                            <button
-                                    class="showDetail element-center"
-                                    @click="showVal(item)"
-                            >
-                                {{ item.showStatus ? '▲' : '▼' }}
+                            <!-- × -->
+                                <!-- 叉号 -->
+                                <img
+                                        style="margin-top: 2px;"
+                                        src="../../assets/images/svg/close.svg"
+                                >
                             </button>
                         </div>
 
                         <!-- 下箭头展开位置 -->
-                        <div v-if="item.showStatus" :style="divStyle" class="dropdown_btm">
+                        <div v-if="item.showStatus" :style="divStyle" class="dropdown_btm card-inner">
                             <!-- 内部的内容区域 -->
                             <!-- 时间选择器（目前不需要时间选择器，默认当天的24点为完成任务的时间） -->
                             <!-- 如果当前的任务已经在完成队列中，则不再计时 -->
-                            <div v-if="getIndexWithList(item.label, this.selectedOption) === -1">
+                            <div
+                               :disabled="getIndexWithList(item.label, this.selectedOption) === -1"
+                               class="card-link"
+                            >
+                                <!-- 时间 -->
+                                <img
+                                        class="svg"
+                                        src="../../assets/images/svg/clock.svg"
+                                        @click="showTimeLeast()"
+                                >
+                                <!-- 备注 -->
+                                <img
+                                        class="svg"
+                                        src="../../assets/images/svg/write.svg"
+                                        @click="showRemark()"
+                                >
+
+
+                            </div>
+
+                            <!-- 剩余具体时间 -->
+                            <div
+                                    v-if="timeShow"
+                                    style="margin-top: 3px;flex: 10;"
+                            >
                                 任务剩余时间：{{ getTimeRemaining() }}
                             </div>
-                            <!-- 备注 -->
-                            备注：
+
+                            <!-- 具体备注框 -->
                             <textarea
+                               v-if="remarkShow"
                                class="textarea"
                                :value="item.remark"
                                @blur="updateItemRemark($event.target.value, item)"
@@ -101,10 +133,14 @@
                 todoListValues: [],
                 // 被选中列表的值
                 selectedOption: [],
-
+                // 下方区域信息展示
                 divStyle: {
                     backgroundColor: '',
                 },
+                // 备注信息的展示情况
+                remarkShow: false,
+                // 剩余任务时间展示情况
+                timeShow: false
             }
         },
         mounted() {
@@ -258,6 +294,14 @@
                 if (indexTmp !== -1) {
                     this.selectedOption.splice(indexTmp, 1);
                 }
+            },
+            // 展示备注信息
+            showRemark() {
+                this.remarkShow = !this.remarkShow;
+            },
+            // 查看剩余的任务时间
+            showTimeLeast() {
+                this.timeShow = !this.timeShow;
             },
 
 
