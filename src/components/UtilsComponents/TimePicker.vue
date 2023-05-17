@@ -1,262 +1,194 @@
 <template>
-    <div class="container" ng-app="timepicker" ng-controller="timeCtrl" ng-class="{'am': timeframe == 'am', 'pm': timeframe == 'pm' }">
-        <div class="timepicker-container-outer" selectedtime="time" timetravel>
-            <div class="timepicker-container-inner">
-                <div class="timeline-container">
-                    <div class="current-time">
-                        <div class="actual-time">{{ time }}</div>
-                    </div>
-                    <div class="timeline">
-                    </div>
-                    <div class="hours-container">
-                        <div class="hour-mark" ng-repeat="hour in getHours() track by $index"></div>
-                    </div>
+    <div class="timePicker">
+        <div class="timePicker-inner">
+<!--            <select id="timeSelect" @change="selectTime">-->
+<!--                <option v-for="time in times" :value="time">-->
+<!--                    {{ time }}-->
+<!--                </option>-->
+<!--            </select>-->
+
+            <div class="dropdown">
+                <div class="dropdown__selected" @click="selectTimeStart" >
+                    {{selectedTime}}
                 </div>
-                <div class="display-time">{{ time }} {{ timeframe }}</div>
-                <div class="am-pm-container">
-                    <div class="am-pm-button" ng-click="changetime('am')">am</div>
-                    <div class="am-pm-button" ng-click="changetime('pm')">pm</div>
+                <div class="dropdown__panel" v-if="showDropdown">
+                    <div v-for="time in times" :value="time" class="dropdown__option" @click="selectTimeEnd(time)">
+                        {{time}}
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <div>
+            <input id="timeInterval" v-model="timePickerInterval" type="number" min="1" max="60" @change="updateTimes" /> 分钟
         </div>
     </div>
 </template>
 
 <script>
     export default {
-        name: "TimePicker",
+        name: 'TimePicker',
+        props: {
+            itemLabel: {
+                type: String,
+                default: '',
+                description: '当前任务的label描述'
+            },
+            selectedTimeNow: {
+                type: String,
+                default: '',
+                description: '当前任务的选择的任务结束时间'
+            },
+            timeInterval: {
+                type: String,
+                default: '',
+                description: '时间粒度'
+            },
+        },
         data() {
             return {
-                time: '1:00',
-                timeframe: 'am'
+                showDropdown: false,
+                selectedTime: '2:00 pm',
+                // 时间粒度
+                timePickerInterval: '30',
+                times: [],
+            };
+        },
+        watch: {
+            selectedTime: {
+                handler(val) {
+                    this.$emit('getSelectedTime',
+                        {
+                            selectedTime: val,
+                            label: this.itemLabel,
+                            timePickerInterval: this.timePickerInterval
+                        });
+                }
             }
-        }
-    }
+        },
+        mounted() {
+            // 1、设置初始化选择的任务结束时间点
+            if (this.selectedTimeNow === '') {
+                // 获取当前的时间
+                let now = new Date();
+                // 将剩余毫秒数转换为小时和分钟
+                let hours = now.getHours();
+                let minutes = now.getMinutes();
+                this.selectedTime = hours <= 12 ? (hours + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' am') :
+                    ((hours - 12) + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' pm');
+            } else {
+                this.selectedTime = this.selectedTimeNow;
+            }
+
+            // 2、设置初始化的时间粒度
+            if (this.timeInterval === '') {
+                this.timePickerInterval = '30';
+            } else {
+                this.timePickerInterval = this.timeInterval;
+            }
+
+            // 3、更新时间下拉框
+            this.updateTimes();
+        },
+        methods: {
+            selectTimeStart() {
+                debugger;
+                this.showDropdown = !this.showDropdown;
+            },
+            selectTimeEnd(time) {
+                this.selectedTime = time;
+                this.showDropdown = false;
+            },
+            updateTimes() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+
+                this.times = [];
+                for (let i = currentHour; i < 24; i++) {
+                    for (let j = 0; j < 60; j += this.timePickerInterval) {
+                        if (i === currentHour && j < currentMinute) {
+                            continue; // Skip past time
+                        }
+
+                        const hours = i % 12 || 12;
+                        const minutes = ('0' + j).slice(-2);
+                        const ampm = i < 12 ? ' am' : ' pm';
+
+                        this.times.push(`${hours}:${minutes}${ampm}`);
+                    }
+                }
+            }
+        },
+    };
 </script>
 
-<style scoped>
-    * {
-        box-sizing: border-box;
+<style>
+    .timePicker {
+        display: flex;
+        width: 250px;
+        height: 100px;
+        margin-top: 5px;
     }
-    body,
-    html {
-        background: #333;
+
+    .timePicker-inner {
+        display:flex;
+        flex-direction: column;
+        padding: 0 10px;
+    }
+
+    #timeInterval {
+        border-color: white;
+        padding: 5px 5px;
+        width: 30px;
+        border-radius: 5px;
+    }
+
+    /** 隐藏number的input框后的上下箭头 */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
         margin: 0;
-        height: 100%;
     }
-    .container {
-        height: 100%;
-        width: 100%;
-        background: white;
-        transition: background 0.25s ease;
-    }
-    .container.pm {
-        background: #00897B;
+    input[type=number] {
+        -moz-appearance:textfield;
     }
 
-    .timepicker-container-outer {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        display: block;
-        border-radius: 2px;
-        padding: 30px;
-        background: white;
-        position: relative;
-        overflow: hidden;
-        -webkit-tap-highlight-color: rgba(0,0,0,0);
-        top: 50%;
-        transform: translateY(-50%);
-        transition: background 0.25s ease;
-    }
-    .pm .timepicker-container-outer {
-        background: #00897B;
+    /** 时间选择器样式 */
+    .dropdown__selected {
+        width: 100px;
+        background: #ffffff;
+        border-radius:5px;
+        padding: 7px 0 5px 10px;
     }
 
-    .timepicker-container-inner {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        display: block;
+    .dropdown__panel {
+        max-height: 70px;
+        height: 70px;
+        background: #FFFFFF;
+        overflow-y: auto;
+        border-radius: 5px;
     }
 
-    .timeline-container {
-        display: block;
-        float: left;
-        position: relative;
-        width: 100%;
-        height: 36px;
+    /* 自定义滚动条样式 */
+    .dropdown__panel::-webkit-scrollbar {
+        width: 8px; /* 设置滚动条宽度 */
     }
 
-    .current-time {
-        display: block;
-        position: absolute;
-        z-index: 1;
-        width: 20px;
-        height: 20px;
-        border-radius: 20px;
-        top: -23px;
-        left: -20px;
-        cursor: ew-resize;
-        user-select: none;
-    }
-    .current-time::after {
-         content: '';
-         display: block;
-         width: 30px;
-         height: 30px;
-         position: absolute;
-         background: #FF7043;
-         transform: rotate(45deg);
-         border-radius: 20px 20px 3px 20px;
-         z-index: -1;
-         top: 0;
-     }
-    .current-time .am::after {
-             background: #00897B;
-     }
-    .current-time .pm ::after {
-             background: white;
-     }
-
-    .actual-time {
-        color: white;
-        line-height: 36px;
-        font-size: 10px;
-        margin-left: 4px;
-        text-align: center;
-        font-family: sans-serif;
-    }
-    .am .actual-time {
-        color: white;
-    }
-    .pm .actual-time {
-        color: #FF7043;
+    .dropdown__panel::-webkit-scrollbar-track {
+        background-color: #f5f5f5; /* 设置滚动条轨道背景颜色 */
     }
 
-    .timeline {
-        display: block;
-        z-index: 1;
-        width: 100%;
-        height: 2px;
-        position: absolute;
-        bottom: 0;
-    }
-    .timeline::before,
-    .timeline::after {
-         content: '';
-         display: block;
-         width: 2px;
-         height: 10px;
-         top: -6px;
-         position: absolute;
-         background: #00897B;
-         left: -1px;
-     }
-    .timeline::after {
-         left: auto;
-         right: -1px;
-     }
-
-    .pm .timeline::before,
-    .pm .timeline::after {
-         background: white;
-     }
-    .hours-container {
-        display: block;
-        z-index: 0;
-        width: 100%;
-        height: 10px;
-        position: absolute;
-        top: 31px;
-    }
-    .hour-mark {
-        width: 2px;
-        display: block;
-        float: left;
-        height: 4px;
-        background: #00897B;
-        position: relative;
-        margin-left: calc((100% / 12) - 2px);
-    }
-    .hour-mark:nth-child(3n) {
-         height: 6px;
-         top: -1px;
-     }
-    .pm .hour-mark {
-        background: white;
-    }
-    .display-time {
-        width: 60%;
-        display: block;
-        padding: 30px 0 0;
-        float: left;
-        font-size: 25px;
-        font-family: sans-serif;
-        text-align: center;
-    }
-    .am .display-time {
-        color: #FF7043;
-    }
-    .pm .display-time {
-        color: white;
+    .dropdown__panel::-webkit-scrollbar-thumb {
+        background-color: #888; /* 设置滚动条滑块颜色 */
+        border-radius: 4px; /* 设置滚动条滑块圆角 */
     }
 
-    .am-pm-container {
-        width: 40%;
-        float: left;
-        height: 36px;
-        display: block;
-        position: relative;
-        padding: 33px 0 0 10px;
+    .dropdown__panel::-webkit-scrollbar-thumb:hover {
+        background-color: #555; /* 设置滚动条滑块悬停时颜色 */
     }
-    .am-pm-button {
-        width: calc(50% - 5px);
-        height: 36px;
-        line-height: 36px;
-        background: #2196F3;
-        text-align: center;
-        font-family: sans-serif;
-        color: white;
-        border-radius: 4px;
-        float: left;
-        cursor: pointer;
-    }
-    .am-pm-button:first-child {
-         background: #00897B;
-         color: white;
-     }
-    .am-pm-button:last-child {
-         background: white;
-         color: #00897B;
-         margin-left: 10px;
-     }
-    .am-pm-button .pm:last-child {
-             color: #FF7043;
-    }
-    .loading {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        text-align: center;
-        line-height: 100vh;
-        font-family: sans-serif;
-        background: white;
-        pointer-events: none;
-        opacity: 1;
-        visibility: visible;
-        animation: fade-out 0.5s forwards;
-    }
-    @keyframes fade-out {
-        0% {
-            opacity: 1;
-            visibility: visible;
-        }
-        100% {
-            opacity: 0;
-            visibility: hidden;
-        }
+
+    .dropdown__option:hover {
+        background: #8acce2;
     }
 </style>

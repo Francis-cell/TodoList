@@ -104,8 +104,13 @@
                                     v-if="timeShow"
                                     style="margin-top: 3px;flex: 10;"
                             >
-                                任务剩余时间：{{ getTimeRemaining() }}
-                                <time-picker style="width: 250px; height: 80px; margin-top: 50px; overflow: hidden"/>
+                                任务剩余时间：{{ getTimeRemaining(item.selectedTime) }}
+                                <time-picker
+                                        :selected-time-now="item.selectedTime"
+                                        :time-interval="item.timePickerInterval"
+                                        :item-label="item.label"
+                                        @getSelectedTime=getSelectedTime
+                                />
                             </div>
 
                             <!-- 具体备注框 -->
@@ -148,7 +153,10 @@
                 // 备注信息的展示情况
                 remarkShow: false,
                 // 剩余任务时间展示情况
-                timeShow: false
+                timeShow: false,
+                // 考虑到选择状态也是一次动画，元素晃动也是一次动画，所以只需要监听一次即可
+                // 也可能是个bug（后续看看原因）
+                time: 1
             }
         },
         mounted() {
@@ -221,32 +229,22 @@
                 if (parentElement) {
                     parentElement.classList.add('clicked');
                     parentElement.addEventListener('animationend', () => {
-                        let indexTmp = this.getIndexWithList(item.label, this.selectedOption)
-                        if ( indexTmp > -1) {
-                            this.selectedOption.splice(indexTmp, 1);
-                        } else {
-                            this.selectedOption.push(item);
+                        if (this.time === 1) {
+                            parentElement.classList.remove('clicked');
+
+                            let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
+                            if ( indexTmp > -1) {
+                                this.selectedOption.splice(indexTmp, 1);
+                            } else {
+                                this.selectedOption.push(item);
+                            }
+                            this.time--;
                         }
-                        parentElement.classList.remove('clicked');
                     }, { once: true });
                 }
-            },
-            // 选中当前行(将当前行从被选中todoList列表中执行删除或者添加操作)
-            addToSelectedOptions(event, item) {
-                // 找到需要添加横线或者删除横线的元素
-                let clickedElement = event.target;
-                let parentElement = clickedElement.parentElement;
-                let labelSpan = parentElement.querySelector('.labelSpan');
 
-                if (this.selectedOption.length !== 0) {
-                    // 点击的时候，如果原本被选中列表中有当前元素，则删除，没有则添加
-                    let indexTmp = this.getIndexWithList(item.label, this.selectedOption);
-                    if (indexTmp !== -1) {
-                        this.selectedOption.splice(indexTmp, 1);
-                        return;
-                    }
-                }
-                this.selectedOption.push(item);
+                // 最后重置
+                this.time = 1;
             },
             // 展示下拉框部分的内容方法
             showVal(item) {
@@ -315,21 +313,42 @@
 
             /** 辅助方法 */
             // 获取当前距离今天24点剩余的时间
-            getTimeRemaining() {
-                let now = new Date();
-                let midnight = new Date();
-                midnight.setHours(24, 0, 0, 0); // 设置为今天的 24 点
+            getTimeRemaining(selectedTime) {
+                // 计算剩余的毫秒数
+                let leastMillis = 0;
 
-                let remainingTime = midnight - now; // 计算剩余的毫秒数
+                if (!selectedTime) {
+                    let now = new Date();
+                    let midnight = new Date();
+                    midnight.setHours(24, 0, 0, 0); // 设置为今天的 24 点
+
+                    leastMillis = midnight - now;
+                } else {
+                    leastMillis = this.getMillisecsLeft(selectedTime);
+                }
 
                 // 将剩余毫秒数转换为小时和分钟
-                let hours = Math.floor(remainingTime / (1000 * 60 * 60));
-                let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+                let hours = Math.floor(leastMillis / (1000 * 60 * 60));
+                let minutes = Math.floor((leastMillis % (1000 * 60 * 60)) / (1000 * 60));
 
                 // 格式化时间为 "小时:分钟" 形式
                 let formattedTime = `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}min`;
-
                 return formattedTime;
+            },
+            getMillisecsLeft(timeStr) {
+                // 解析时间字符串
+                let [hour, minute, period] = timeStr.split(/:|\s+/);
+                // 将小时转换为24小时制
+                let adjustedHour = period === 'pm' ? parseInt(hour, 10) + 12 : parseInt(hour, 10);
+                // 获取当前时间和目标时间的毫秒差
+                let targetTime = new Date();
+                targetTime.setHours(adjustedHour);
+                targetTime.setMinutes(parseInt(minute, 10));
+                targetTime.setSeconds(0);
+                targetTime.setMilliseconds(0);
+                let millisecsLeft = targetTime.getTime() - Date.now();
+                // 返回毫秒差，或者0（如果时间已经过了）
+                return millisecsLeft < 0 ? 0 : millisecsLeft;
             },
             // 设置颜色
             setRandomColor() {
@@ -358,6 +377,25 @@
                 let randomIndex = this.getRandomIndex(colorList);
                 return '#' + colorList[randomIndex];
             },
+
+            // 获取来自子组件的传值
+            getChildData(obj) {
+                for (let key in obj) {
+                    this[key] = obj[key];
+                }
+            },
+            // 时间选择回调方法
+            getSelectedTime(obj) {
+                let label = obj.label;
+                let selectedTime = obj.selectedTime;
+                let timePickerInterval = obj.timePickerInterval;
+
+                let tmpIndex = this.getIndexWithList(label, this.todoListValues);
+                if (tmpIndex > -1) {
+                    this.todoListValues[tmpIndex].selectedTime = selectedTime;
+                    this.todoListValues[tmpIndex].timePickerInterval = timePickerInterval;
+                }
+            }
         }
     }
 </script>
