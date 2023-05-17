@@ -101,7 +101,7 @@
 
                             <!-- 剩余具体时间 -->
                             <div
-                                    v-if="timeShow"
+                                    v-if="cardShowContent === 'timePicker'"
                                     style="margin-top: 3px;flex: 10;"
                             >
                                 任务剩余时间：{{ getTimeRemaining(item.selectedTime) }}
@@ -115,7 +115,7 @@
 
                             <!-- 具体备注框 -->
                             <textarea
-                               v-if="remarkShow"
+                               v-if="cardShowContent === 'remarkCard'"
                                class="textarea papper"
                                :value="item.remark"
                                @blur="updateItemRemark($event.target.value, item)"
@@ -150,10 +150,8 @@
                 divStyle: {
                     backgroundColor: '',
                 },
-                // 备注信息的展示情况
-                remarkShow: false,
-                // 剩余任务时间展示情况
-                timeShow: false,
+                // 方片区域展示内容（默认展示“剩余时间”部分）
+                cardShowContent: 'timePicker',
                 // 考虑到选择状态也是一次动画，元素晃动也是一次动画，所以只需要监听一次即可
                 // 也可能是个bug（后续看看原因）
                 time: 1
@@ -303,11 +301,20 @@
             },
             // 展示备注信息
             showRemark() {
+                if (this.cardShowContent !== 'remarkCard') {
+                    this.cardShowContent = 'remarkCard';
+                } else {
+                    this.cardShowContent = 'nothing';
+                }
                 this.remarkShow = !this.remarkShow;
             },
             // 查看剩余的任务时间
             showTimeLeast() {
-                this.timeShow = !this.timeShow;
+                if (this.cardShowContent !== 'timePicker') {
+                    this.cardShowContent = 'timePicker';
+                } else {
+                    this.cardShowContent = 'nothing';
+                }
             },
 
 

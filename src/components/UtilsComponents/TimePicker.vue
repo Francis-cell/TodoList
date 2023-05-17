@@ -69,13 +69,16 @@
         mounted() {
             // 1、设置初始化选择的任务结束时间点
             if (this.selectedTimeNow === '') {
+                // 设置当前时间为今天的23:59点
+                this.selectedTime = '11:59 pm';
+
                 // 获取当前的时间
-                let now = new Date();
-                // 将剩余毫秒数转换为小时和分钟
-                let hours = now.getHours();
-                let minutes = now.getMinutes();
-                this.selectedTime = hours <= 12 ? (hours + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' am') :
-                    ((hours - 12) + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' pm');
+                // let now = new Date();
+                // // 将剩余毫秒数转换为小时和分钟
+                // let hours = now.getHours();
+                // let minutes = now.getMinutes();
+                // this.selectedTime = hours <= 12 ? (hours + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' am') :
+                //     ((hours - 12) + ':' + (minutes > 10 ? minutes : ('0' + minutes)) + ' pm');
             } else {
                 this.selectedTime = this.selectedTimeNow;
             }

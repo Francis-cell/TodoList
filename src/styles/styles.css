@@ -315,7 +315,7 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 .papper {
     position: relative;
     box-sizing: border-box;
-    width: 200px;
+    width: 230px;
     height: 200px;
     background: #ffffff;
     background-image: linear-gradient(#ffffff 1.7rem, #ccc 1.8rem);
