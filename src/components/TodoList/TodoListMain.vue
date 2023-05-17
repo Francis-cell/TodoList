@@ -6,6 +6,11 @@
         </div>
         <div class="content-input">
             <form id="todo-form">
+<!--                &lt;!&ndash; 编辑 &ndash;&gt;-->
+<!--                <img-->
+<!--                        class="svg"-->
+<!--                        src="../../assets/images/svg/edit.svg"-->
+<!--                >-->
                 <input class="enable-click" type="text" id="todo-input" placeholder="Enter a new task" v-model="todoInput">
                 <button class="enable-click" type="submit" @click="addTodoList">ADD</button>
             </form>
@@ -100,12 +105,13 @@
                                     style="margin-top: 3px;flex: 10;"
                             >
                                 任务剩余时间：{{ getTimeRemaining() }}
+                                <time-picker style="width: 250px; height: 80px; margin-top: 50px; overflow: hidden"/>
                             </div>
 
                             <!-- 具体备注框 -->
                             <textarea
                                v-if="remarkShow"
-                               class="textarea"
+                               class="textarea papper"
                                :value="item.remark"
                                @blur="updateItemRemark($event.target.value, item)"
                             ></textarea>
@@ -121,9 +127,11 @@
 
 <script>
     import { ipcRenderer } from 'electron';
+    import TimePicker from "@/components/UtilsComponents/TimePicker";
     export default {
         name: "TodoList",
         components: {
+            TimePicker
         },
         data() {
             return {

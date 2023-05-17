@@ -63,6 +63,7 @@ h2 {
     border: none;
     outline: none;
     width: 200px;
+    /*padding-left: 2.5rem;*/
 }
 
 #todo-input:focus {
@@ -293,6 +294,7 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
 
 /** 大文本框样式 */
 .textarea {
+    line-height: 28px;
     width: 200px;
     height: 150px;
     padding: 10px;
@@ -302,6 +304,45 @@ ul#todo-list li:nth-child(7n) .dropdown_top{
     resize: vertical;
     margin-top: 10px;
 }
+
+.papper {
+    position: relative;
+    box-sizing: border-box;
+    width: 200px;
+    height: 200px;
+    background: #ffffff;
+    background-image: linear-gradient(#ffffff 1.7rem, #ccc 1.8rem);
+    background-size: 100% 1.8rem;
+    border-radius: 10px;
+}
+
+.papper::before,
+.papper::after {
+    position: absolute;
+    content: "";
+    bottom: 10px;
+    width: 40%;
+    height: 10px;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.7);
+    z-index: -1;
+    transition: all 0.3s ease;
+}
+
+.papper::before {
+    left: 15px;
+    transform: skew(-5deg) rotate(-5deg);
+}
+
+.papper::after {
+    right: 15px;
+    transform: skew(5deg) rotate(5deg);
+}
+
+.papper:hover::before,
+.papper:hover::after {
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
+}
+
 
 /** 自定义滚动条属性 */
 /* 设置最大高度和启用垂直滚动条 */
