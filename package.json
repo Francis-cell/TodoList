@@ -10,12 +10,12 @@
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "start": "electron"
+    "start": "electron",
+    "dist-win": "electron-builder --win --ia32"
   },
-  "main": "background.js",
+  "main": "src/background.js",
   "dependencies": {
     "core-js": "^3.8.3",
-    "electron": "^24.3.0",
     "vue": "^3.2.13"
   },
   "devDependencies": {
@@ -25,10 +25,17 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "electron": "^13.0.0",
+    "electron-builder": "^19.53.5",
     "electron-devtools-installer": "^3.1.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "vue-cli-plugin-electron-builder": "~2.1.1"
+  },
+  "build": {
+    "appId": "TODO-List",
+    "win": {
+      "icon": "logo.ico"
+    }
   },
   "eslintConfig": {
     "root": true,

@@ -5,6 +5,20 @@ let win;
 import { app, protocol, BrowserWindow , Tray, Menu, ipcMain} from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+
+
+// const electron = require('electron');
+// const app = electron.app;
+// const BrowserWindow = electron.BrowserWindow;
+// const Tray = electron.Tray;
+// const Menu = electron.Menu;
+// const ipcMain = electron.ipcMain;
+// const { createProtocol } = require('vue-cli-plugin-electron-builder/lib');
+// const installExtension = require('electron-devtools-installer').default;
+// const VUEJS3_DEVTOOLS = require('electron-devtools-installer').VUEJS3_DEVTOOLS;
+
+
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const iconPath = path.join(__dirname, "../src/assets/images/icos/TODO.ico")
 
