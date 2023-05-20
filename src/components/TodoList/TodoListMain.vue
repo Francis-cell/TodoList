@@ -6,11 +6,6 @@
         </div>
         <div class="content-input">
             <form id="todo-form">
-<!--                &lt;!&ndash; 编辑 &ndash;&gt;-->
-<!--                <img-->
-<!--                        class="svg"-->
-<!--                        src="../../assets/images/svg/edit.svg"-->
-<!--                >-->
                 <input class="enable-click" type="text" id="todo-input" placeholder="Enter a new task" v-model="todoInput">
                 <button class="enable-click" type="submit" @click="addTodoList">ADD</button>
             </form>
@@ -133,6 +128,9 @@
 <script>
     import { ipcRenderer } from 'electron';
     import TimePicker from "@/components/UtilsComponents/TimePicker";
+    import Utils from "../../Utils/common.js";
+    import DbOperate from "../../Utils/dbOperate.js";
+    import sqlite3 from "sqlite3";
     export default {
         name: "TodoList",
         components: {
@@ -154,10 +152,14 @@
                 cardShowContent: 'timePicker',
                 // 考虑到选择状态也是一次动画，元素晃动也是一次动画，所以只需要监听一次即可
                 // 也可能是个bug（后续看看原因）
-                time: 1
+                time: 1,
+
+                // todoList 数据库链接
+                todoListDb: null
             }
         },
         mounted() {
+
         },
         watch: {
             // todoListValues: {
@@ -256,7 +258,7 @@
                 // 然后再执行当前任务详情的打开
                 let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
                 if (indexTmp !== -1) {
-                    this.setRandomColor();
+                    Utils.setRandomColor();
                     this.todoListValues[indexTmp].showStatus = !this.todoListValues[indexTmp].showStatus;
                 }
             },
@@ -356,33 +358,6 @@
                 let millisecsLeft = targetTime.getTime() - Date.now();
                 // 返回毫秒差，或者0（如果时间已经过了）
                 return millisecsLeft < 0 ? 0 : millisecsLeft;
-            },
-            // 设置颜色
-            setRandomColor() {
-                const randomColor = this.getRandomColor();
-                this.divStyle.backgroundColor = randomColor;
-            },
-            // 生成一个随机下标
-            getRandomIndex(list) {
-                return Math.floor(Math.random() * list.length);
-            },
-            // 随机颜色生成方法
-            getRandomColor() {
-                // 生成随机颜色值
-                // const letters = '0123456789ABCDEF';
-                // let color = '#';
-                // for (let i = 0; i < 6; i++) {
-                //     color += letters[Math.floor(Math.random() * 16)];
-                // }
-
-                // 颜色列表
-                let colorList = ['F5F0BB', 'DBDFAA', 'B3C890', 'F6C391', 'D4ADFC', 'ECCDB4', 'E76161', 'FFE6C7', 'FFB4B4',
-                'B0DAFF', 'FDF4F5', 'E8A0BF', 'A9907E', 'D5B4B4', 'F6F1F1', '8D7B68', 'A4907C', 'C8B6A6', 'F1DEC9',
-                'F5EAEA', 'FFB84C', 'F16767', 'B9F3E4', 'FFD4D4', 'FFFBAC', 'FFB26B', '5BC0F8', '86E5FF', 'FFC6D3',
-                'FEA1BF', 'E98EAD', 'DFD3C3', 'DFD3C3', 'D0B8A8', 'DFF6FF']
-
-                let randomIndex = this.getRandomIndex(colorList);
-                return '#' + colorList[randomIndex];
             },
 
             // 获取来自子组件的传值
