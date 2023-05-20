@@ -8,7 +8,6 @@
             <form id="todo-form">
                 <input class="enable-click" type="text" id="todo-input" placeholder="Enter a new task" v-model="todoInput">
                 <button class="enable-click" type="submit" @click="addTodoList">ADD</button>
-                <button class="enable-click" type="submit" @click="saveTodoList">save</button>
             </form>
         </div>
         <div id="content-todo" class="scrollable-container">
@@ -61,7 +60,6 @@
                                     class="delete element-center"
                                     @click="deleteTodoSelected($event, item)"
                             >
-                            <!-- × -->
                                 <!-- 叉号 -->
                                 <img
                                         style="margin-top: 2px;"
@@ -71,7 +69,7 @@
                         </div>
 
                         <!-- 下箭头展开位置 -->
-                        <div v-if="item.showStatus" :style="divStyle" class="dropdown_btm card-inner">
+                        <div v-if="item.showStatus && detailShow" :style="divStyle" class="dropdown_btm card-inner">
                             <!-- 内部的内容区域 -->
                             <!-- 时间选择器（目前不需要时间选择器，默认当天的24点为完成任务的时间） -->
                             <!-- 如果当前的任务已经在完成队列中，则不再计时 -->
@@ -79,6 +77,12 @@
                                :disabled="getIndexWithList(item.label, this.selectedOption) === -1"
                                class="card-link"
                             >
+                                <!-- 编辑 -->
+                                <img
+                                        class="svg"
+                                        src="../../assets/images/svg/write.svg"
+                                        @click="showTitleEdit()"
+                                >
                                 <!-- 时间 -->
                                 <img
                                         class="svg"
@@ -88,11 +92,37 @@
                                 <!-- 备注 -->
                                 <img
                                         class="svg"
-                                        src="../../assets/images/svg/write.svg"
+                                        src="../../assets/images/svg/remark.svg"
                                         @click="showRemark()"
                                 >
 
 
+                            </div>
+
+                            <!-- 编辑任务内容 -->
+                            <div v-if="cardShowContent === 'editContent'">
+                                <div style="display: flex; flex-direction: column">
+                                    <span
+                                            style="width: 200px;
+                                            height: 30px;
+                                            border-radius: 5px;
+                                            color: #8c8c8c;
+                                            margin-left: auto;
+                                            margin-right: auto;"
+                                    >调整任务标题</span>
+                                    <input
+                                            style="height: 70px;
+                                            text-align: center;
+                                            justify-content: center;
+                                            border-radius: 5px;
+                                            border: 1px solid gray;
+                                            font-size: 18px;"
+                                            type="text"
+                                            ref="titleInput"
+                                            :value="item.label"
+                                            @blur="changeTitle($event, item)"
+                                    >
+                                </div>
                             </div>
 
                             <!-- 剩余具体时间 -->
@@ -153,12 +183,21 @@
                 // 也可能是个bug（后续看看原因）
                 time: 1,
 
-                // 数据存储时使用的json文件存储路径
-                jsonSavePath: '@/public/jsonSaveData'
+                // 详细信息部分展示
+                detailShow: false,
+                // 数据存储定时器
+                saveDataInterval: null
             }
         },
         mounted() {
+            // 加载历史存储的数据
             this.loadTodoList();
+            // 加载数据存储方法
+            // this.autoSaveData();
+        },
+        beforeDestroy() {
+            // 在组件销毁前清除定时器
+            clearInterval(this.saveDataInterval);
         },
         watch: {
             // todoListValues: {
@@ -196,11 +235,17 @@
                     }
                 }
             },
+            // 数据存储计时器（默认2分钟自动存储一下数据）
+            autoSaveData() {
+                let intervalInMilliseconds = 2 * 60 * 1000;
+                // 在指定时间间隔执行数据归档操作
+                this.saveDataInterval = setInterval(() => {
+                    // 调用存储数据方法
+                    this.saveTodoList()
+                }, intervalInMilliseconds);
+            },
             // 保存 todoList 任务使用的方法
-            saveTodoList(event) {
-                // 阻止默认的提交行为，防止因为提交引起的页面刷新行为导致页面数据恢复
-                event.preventDefault();
-
+            saveTodoList() {
                 // 准备要存储的数据
                 let jsonSaveData = {
                     todoListValues: this.todoListValues,
@@ -224,6 +269,7 @@
                     this.todoListValues[indexTmp].remark = value;
                 }
             },
+
 
 
             /** 动画部分 */
@@ -267,6 +313,8 @@
             },
             // 展示下拉框部分的内容方法
             showVal(item) {
+                this.detailShow = true;
+
                 // 首先关闭当前已经打开详情区域的任务详情
                 for (let i = 0; i < this.todoListValues.length; i++) {
                     if (this.todoListValues[i].showStatus && this.todoListValues[i].label !== item.label) {
@@ -289,6 +337,8 @@
 
             // 页面关闭逻辑
             closeWindow() {
+                // 关闭前调用数据存储
+                this.saveTodoList();
                 // 发送消息给 background.js
                 ipcRenderer.send('close-window');
             },
@@ -339,6 +389,29 @@
                     this.cardShowContent = 'timePicker';
                 } else {
                     this.cardShowContent = 'nothing';
+                }
+            },
+            // 展示标题修改模块
+            showTitleEdit() {
+                if (this.cardShowContent !== 'editContent') {
+                    this.cardShowContent = 'editContent';
+                } else {
+                    this.cardShowContent = 'nothing';
+                }
+            },
+            // 修改标题方法
+            changeTitle(event, item) {
+                // 获取到标题输入框中的文本信息
+                let titleTxt = event.currentTarget.value;
+                // 修改对应的值
+                let tmpIndex = this.getIndexWithList(item.label, this.todoListValues);
+                // 查看修改后的值是否已经存在，如果存在，则不允许修改，否则支持修改操作
+                let tmpIndexNew = this.getIndexWithList(titleTxt, this.todoListValues);
+                if (tmpIndex !== -1 && tmpIndexNew === -1) {
+                    this.todoListValues[tmpIndex].label = titleTxt;
+                } else {
+                    // 数据还原
+                    return;
                 }
             },
 
