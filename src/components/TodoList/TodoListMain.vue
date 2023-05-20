@@ -8,6 +8,7 @@
             <form id="todo-form">
                 <input class="enable-click" type="text" id="todo-input" placeholder="Enter a new task" v-model="todoInput">
                 <button class="enable-click" type="submit" @click="addTodoList">ADD</button>
+                <button class="enable-click" type="submit" @click="saveTodoList">save</button>
             </form>
         </div>
         <div id="content-todo" class="scrollable-container">
@@ -129,8 +130,6 @@
     import { ipcRenderer } from 'electron';
     import TimePicker from "@/components/UtilsComponents/TimePicker";
     import Utils from "../../Utils/common.js";
-    import DbOperate from "../../Utils/dbOperate.js";
-    import sqlite3 from "sqlite3";
     export default {
         name: "TodoList",
         components: {
@@ -154,12 +153,12 @@
                 // 也可能是个bug（后续看看原因）
                 time: 1,
 
-                // todoList 数据库链接
-                todoListDb: null
+                // 数据存储时使用的json文件存储路径
+                jsonSavePath: '@/public/jsonSaveData'
             }
         },
         mounted() {
-
+            this.loadTodoList();
         },
         watch: {
             // todoListValues: {
@@ -196,6 +195,26 @@
                         this.todoInput = '';
                     }
                 }
+            },
+            // 保存 todoList 任务使用的方法
+            saveTodoList(event) {
+                // 阻止默认的提交行为，防止因为提交引起的页面刷新行为导致页面数据恢复
+                event.preventDefault();
+
+                // 准备要存储的数据
+                let jsonSaveData = {
+                    todoListValues: this.todoListValues,
+                    selectedOption: this.selectedOption
+                }
+
+                // 写入数据
+                Utils.saveTodoListJsonData(jsonSaveData);
+            },
+            // 读取当天的 todoList 的内容，并加载
+            loadTodoList() {
+                // 读取数据
+                let readData = Utils.readTodoListNowJsonData();
+                this.getChildData(readData);
             },
             // 添加任务项的备注信息
             updateItemRemark(value, item) {
@@ -258,11 +277,15 @@
                 // 然后再执行当前任务详情的打开
                 let indexTmp = this.getIndexWithList(item.label, this.todoListValues);
                 if (indexTmp !== -1) {
-                    Utils.setRandomColor();
+                    this.setRandomColor();
                     this.todoListValues[indexTmp].showStatus = !this.todoListValues[indexTmp].showStatus;
                 }
             },
-
+            // 设置颜色
+            setRandomColor() {
+                const randomColor = Utils.getRandomColor();
+                this.divStyle.backgroundColor = randomColor;
+            },
 
             // 页面关闭逻辑
             closeWindow() {
