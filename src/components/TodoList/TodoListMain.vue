@@ -196,8 +196,8 @@
             // this.autoSaveData();
         },
         beforeDestroy() {
-            // 在组件销毁前清除定时器
-            clearInterval(this.saveDataInterval);
+            // // 在组件销毁前清除定时器
+            // clearInterval(this.saveDataInterval);
         },
         watch: {
             // todoListValues: {
