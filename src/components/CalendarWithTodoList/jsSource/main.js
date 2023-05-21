@@ -1,4 +1,5 @@
 import moment from "./moment.min.js";
+import Utils from "../../../Utils/common.js";
 
 const today = moment();
 
@@ -56,9 +57,19 @@ class Calendar {
     drawMonth() {
         let self = this;
 
-        this.events.forEach(function(ev) {
-            ev.date = self.current.clone().date(Math.random() * (29 - 1) + 1);
-        });
+        this.events.forEach(item => {
+            // 先获取传输过来的日期的值
+            if (item.date && Utils.typeOf(item.date) === 'number') {
+                let date = item.date;
+                item.date = self.current.clone().date(date);
+            } else {
+                item.date = self.current.clone();
+            }
+        })
+
+        // this.events.forEach(function(ev) {
+        //     ev.date = self.current.clone().date(Math.random() * (29 - 1) + 1);
+        // });
 
 
         if(this.month) {
@@ -295,13 +306,14 @@ class Calendar {
         this.el.appendChild(legend);
     }
 
+    // 获取下个月的信息
     nextMonth() {
-        console.error("123");
         this.current.add('months', 1);
         this.next = true;
         this.draw();
     }
 
+    // 获取上个月的信息
     prevMonth() {
         this.current.subtract('months', 1);
         this.next = false;

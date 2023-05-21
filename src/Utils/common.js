@@ -3,6 +3,12 @@ const fs = require('fs');
 const todoListSavePath = "./public/jsonSaveData";
 
 export default {
+    // 判断一个元素的数据类型
+    typeOf(obj) {
+        let res = Object.prototype.toString.call(obj).split(' ')[1];
+        res = res.substring(0, res.length - 1).toLowerCase();
+        return res;
+    },
     // 生成一个随机下标
     getRandomIndex(list) {
         return Math.floor(Math.random() * list.length);
@@ -42,6 +48,24 @@ export default {
         // 正则校验
         let endsWithSlash = /\/$/.test(pathWithOutFileName);
         return endsWithSlash;
+    },
+    /**
+     * 查看一个文件路径下的文件是否存在，如果不存在则创建这个文件
+     * @param filePath 被检查文件的路径
+     * @param data 如果为空文件，创建使用的数据
+     */
+    checkFileExist(filePath, data) {
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            // 说明被检查的路径的文件不存在
+            if (err) {
+                // 先保存一个空的文件
+                this.saveTodoListJsonData(data);
+                return false;
+            } else {
+                // 文件已经存在
+                return true;
+            }
+        });
     },
     /**
      * 生成保存或者读取的时候的文件的路径
@@ -88,8 +112,12 @@ export default {
     /**
      * 读取JSON文件中的信息
      * @param withFileNamePath 将要被读取的JSON文件的完整路径（携带文件的名称）
+     * @param data 如果初始检查json文件不存在，则使用data中的数据初始化这个json文件
      */
-    readJsonData(withFileNamePath) {
+    readJsonData(withFileNamePath, data) {
+        // TODO 果没有这个文件，则先创建文件
+        this.checkFileExist(withFileNamePath, data);
+
         // 读取指定路径下的被压缩的JSON文件的内容(默认采用utf-8格式进行数据的存储和解析)
         let compressedData = fs.readFileSync(withFileNamePath, 'utf-8');
         // 将被压缩的JSON文件进行解压
@@ -99,11 +127,12 @@ export default {
      * 读取todoList指定路径的文件内容
      * @param dayInfo 指定日期信息 (要求格式为 2023-5-20 的格式类型)
      * @param fileName 也可以直接指定文件的名称打开
+     * @param data 当数据为空的时候，传入的用于初始化json文件的数据
      *
      * eg: readTodoListJsonData(false, JSON文件名称)
      *     readTodoListJsonData(dayInfo)
      */
-    readTodoListJsonData(dayInfo, fileName) {
+    readTodoListJsonData(dayInfo, fileName, data) {
         let tmpFileName = "";
         if (dayInfo) {
             // 形成文件存储时的名称
@@ -120,13 +149,15 @@ export default {
             wholeFilePath = todoListSavePath + "/" + tmpFileName;
         }
 
-        return this.readJsonData(wholeFilePath);
+
+
+        return this.readJsonData(wholeFilePath, data);
     },
     // 获取当天的todoList信息
-    readTodoListNowJsonData() {
+    readTodoListNowJsonData(data) {
         // 获取当天的信息
         let dayNow = this.getYearMonthDay();
         // 读取todoList指定位置的json数据
-        return this.readTodoListJsonData(dayNow);
+        return this.readTodoListJsonData(dayNow, '' ,data);
     }
 }

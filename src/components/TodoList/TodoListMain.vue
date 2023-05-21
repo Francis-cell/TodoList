@@ -257,8 +257,14 @@
             },
             // 读取当天的 todoList 的内容，并加载
             loadTodoList() {
+                // 读入数据前检查json文件是否存在，如果不存在则创建对应的json文件
+                // 数据准备
+                let jsonData = {
+                    todoListValues: [],
+                    selectedOption: []
+                }
                 // 读取数据
-                let readData = Utils.readTodoListNowJsonData();
+                let readData = Utils.readTodoListNowJsonData(jsonData);
                 this.getChildData(readData);
             },
             // 添加任务项的备注信息
