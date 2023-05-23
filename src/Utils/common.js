@@ -167,5 +167,22 @@ export default {
         let dayNow = this.getYearMonthDay();
         // 读取todoList指定位置的json数据
         return this.readTodoListJsonData(dayNow, '' ,data);
+    },
+
+    // 深拷贝一个对象的值
+    deepCopy(obj) {
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
+        }
+
+        let copy = Array.isArray(obj) ? [] : {};
+
+        for (let key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                copy[key] = this.deepCopy(obj[key]);
+            }
+        }
+
+        return copy;
     }
 }

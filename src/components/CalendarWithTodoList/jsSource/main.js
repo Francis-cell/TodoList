@@ -12,21 +12,18 @@ class Calendar {
      */
     constructor(selector, todoData, currentYearAndMonth) {
         debugger;
-        this.el = document.querySelector(selector);
-        // 获取当月的记录(eg: 2023-5)
-        todoData.forEach(item => {
-           if (item.todoDate === currentYearAndMonth) {
-               this.events = item.todoRecord;
-           }
-        });
+        // 存储传输过来的数据
+        this.todoData = todoData;
 
+        this.el = document.querySelector(selector);
+
+        // 判断是否有this.current的存在，如果不存在则先初始化为空数组
         if (!this.current) {
             this.current = [];
         }
 
-
         this.current = moment().date(1);
-        this.draw();
+        this.draw(todoData, currentYearAndMonth);
         let current = document.querySelector('.today');
         if(current) {
             let self = this;
@@ -36,7 +33,21 @@ class Calendar {
         }
     }
 
-    draw() {
+    draw(todoData, currentYearAndMonth) {
+        // 1、处理数据
+        // 获取当月的记录(eg: 2023-5)
+        // 拷贝一份数据
+        let todoDataCopy = Utils.deepCopy(todoData);
+
+        todoDataCopy.forEach(item => {
+            if (item.todoDate === currentYearAndMonth) {
+                this.events = item.todoRecord;
+            }
+        });
+
+        debugger;
+
+        // 2、绘制界面
         //Create Header
         this.drawHeader();
 
@@ -323,15 +334,26 @@ class Calendar {
         this.el.appendChild(legend);
     }
 
+    // 将当前的“Thu Jun 01 2023 20:53:56 GMT+0800 (中国标准时间)”格式的时间转换成 '2023-6'的格式
+    formatDateYearMonth(time) {
+        let date = new Date(time);
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let yearWithMonth = year + "-" + month;
+
+        return yearWithMonth;
+    }
+
     // 获取下个月的信息
     nextMonth() {
         this.current.add('months', 1);
         this.next = true;
 
-        // 将“currentYearAndMonth”调整成上个月
+        // 获取下个月对应的信息
+        let nextMonth = this.formatDateYearMonth(this.current);
 
-
-        this.draw();
+        // 重新绘制 this.selectorItem
+        this.draw(this.todoData, nextMonth);
     }
 
     // 获取上个月的信息
@@ -339,21 +361,20 @@ class Calendar {
         this.current.subtract('months', 1);
         this.next = false;
 
-        // 将“currentYearAndMonth”调整成下个月
+        // 将“currentYearAndMonth”调整成上个月
+        let lastMonth = this.formatDateYearMonth(this.current);
 
-
-        this.draw();
+        // 重新绘制 this.selectorItem
+        this.draw(this.todoData, lastMonth);
     }
 }
 
 export default {
     // 生成一个Calendar示例
     calendar(id, data, currentYearAndMonth) {
-        window.Calendar = Calendar;
-        
         window.createElements = this.createElement;
 
-        new Calendar(id, data, currentYearAndMonth);
+        window.Calendar = new Calendar(id, data, currentYearAndMonth);
     },
 
     createElement(tagName, className, innerText) {

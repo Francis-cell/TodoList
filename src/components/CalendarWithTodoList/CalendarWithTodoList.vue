@@ -43,6 +43,24 @@
                             { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
                             { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 20 }
                         ]
+                    },
+                    {
+                        todoDate: '2023-4',
+                        todoRecord : [
+                            { eventName: 'Lunch Meeting w/ Mark', calendar: 'Work', color: 'orange', date: 1},
+                            { eventName: 'Interview - Jr. Web Developer', calendar: 'Work', color: 'orange', date: 13 },
+                            { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
+                            { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 10 }
+                        ]
+                    },
+                    {
+                        todoDate: '2023-7',
+                        todoRecord : [
+                            { eventName: 'Lunch Meeting w/ Mark', calendar: 'Work', color: 'orange', date: 10},
+                            { eventName: 'Interview - Jr. Web Developer', calendar: 'Work', color: 'orange', date: 30 },
+                            { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
+                            { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 2 }
+                        ]
                     }
                 ],
                 jsonData:
@@ -92,8 +110,8 @@
             // 日历初始化方法
             calendarInit() {
                 // 获取当前的年和月的信息
-                // let currentYearAndMonth = Utils.getYearMonthDay(true);
-                let currentYearAndMonth = '2023-6'
+                let currentYearAndMonth = Utils.getYearMonthDay(true);
+                // let currentYearAndMonth = '2023-6'
 
                 calendar.calendar('#calendar', this.todoData, currentYearAndMonth);
             }
