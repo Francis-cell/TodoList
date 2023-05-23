@@ -5,30 +5,45 @@
 <script>
     import "./cssSource/style.css";
     import calendar from "./jsSource/main";
+    import Utils from "@/Utils/common";
     export default {
         name: "CalendarWithTodoList",
         data() {
             return {
-                todoData : [
-                    { eventName: 'Lunch Meeting w/ Mark', calendar: 'Work', color: 'orange', date: 20},
-                    { eventName: 'Interview - Jr. Web Developer', calendar: 'Work', color: 'orange', date: 20 },
-                    { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
-                    { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 20 },
+                todoData: [
+                    {
+                        todoDate: '2023-5',
+                        todoRecord : [
+                            { eventName: 'Lunch Meeting w/ Mark', calendar: 'Work', color: 'orange', date: 20},
+                            { eventName: 'Interview - Jr. Web Developer', calendar: 'Work', color: 'orange', date: 20 },
+                            { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
+                            { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 20 },
 
-                    { eventName: 'Game vs Portalnd', calendar: 'Sports', color: 'blue', date: 21 },
-                    { eventName: 'Game vs Houston', calendar: 'Sports', color: 'blue', date: 21 },
-                    { eventName: 'Game vs Denver', calendar: 'Sports', color: 'blue', date: 21 },
-                    { eventName: 'Game vs San Degio', calendar: 'Sports', color: 'blue', date: 22 },
+                            { eventName: 'Game vs Portalnd', calendar: 'Sports', color: 'blue', date: 21 },
+                            { eventName: 'Game vs Houston', calendar: 'Sports', color: 'blue', date: 21 },
+                            { eventName: 'Game vs Denver', calendar: 'Sports', color: 'blue', date: 21 },
+                            { eventName: 'Game vs San Degio', calendar: 'Sports', color: 'blue', date: 22 },
 
-                    { eventName: 'School Play', calendar: 'Kids', color: 'yellow', date: 20 },
-                    { eventName: 'Parent/Teacher Conference', calendar: 'Kids', color: 'yellow', date: 23 },
-                    { eventName: 'Pick up from Soccer Practice', calendar: 'Kids', color: 'yellow', date: 24 },
-                    { eventName: 'Ice Cream Night', calendar: 'Kids', color: 'yellow', date: 24 },
+                            { eventName: 'School Play', calendar: 'Kids', color: 'yellow', date: 20 },
+                            { eventName: 'Parent/Teacher Conference', calendar: 'Kids', color: 'yellow', date: 23 },
+                            { eventName: 'Pick up from Soccer Practice', calendar: 'Kids', color: 'yellow', date: 24 },
+                            { eventName: 'Ice Cream Night', calendar: 'Kids', color: 'yellow', date: 24 },
 
-                    { eventName: 'Free Tamale Night', calendar: 'Other', color: 'green', date: 28 },
-                    { eventName: 'Bowling Team', calendar: 'Other', color: 'green', date: 28 },
-                    { eventName: 'Teach Kids to Code', calendar: 'Other', color: 'green', date: 26 },
-                    { eventName: 'Startup Weekend', calendar: 'Other', color: 'green', date: 25 }
+                            { eventName: 'Free Tamale Night', calendar: 'Other', color: 'green', date: 28 },
+                            { eventName: 'Bowling Team', calendar: 'Other', color: 'green', date: 28 },
+                            { eventName: 'Teach Kids to Code', calendar: 'Other', color: 'green', date: 26 },
+                            { eventName: 'Startup Weekend', calendar: 'Other', color: 'green', date: 25 }
+                        ]
+                    },
+                    {
+                        todoDate: '2023-6',
+                        todoRecord : [
+                            { eventName: 'Lunch Meeting w/ Mark', calendar: 'Work', color: 'orange', date: 20},
+                            { eventName: 'Interview - Jr. Web Developer', calendar: 'Work', color: 'orange', date: 20 },
+                            { eventName: 'Demo New App to the Board', calendar: 'Work', color: 'orange', date: 22 },
+                            { eventName: 'Dinner w/ Marketing', calendar: 'Work', color: 'orange', date: 20 }
+                        ]
+                    }
                 ],
                 jsonData:
                     {
@@ -76,7 +91,11 @@
             },
             // 日历初始化方法
             calendarInit() {
-                calendar.calendar('#calendar', this.todoData);
+                // 获取当前的年和月的信息
+                // let currentYearAndMonth = Utils.getYearMonthDay(true);
+                let currentYearAndMonth = '2023-6'
+
+                calendar.calendar('#calendar', this.todoData, currentYearAndMonth);
             }
         }
     }

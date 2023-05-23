@@ -190,10 +190,12 @@
             }
         },
         mounted() {
+            // 加载一次数据存储
+            // this.saveTodoList();
             // 加载历史存储的数据
             this.loadTodoList();
             // 加载数据存储方法
-            // this.autoSaveData();
+            this.autoSaveData();
         },
         beforeDestroy() {
             // // 在组件销毁前清除定时器

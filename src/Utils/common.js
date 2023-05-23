@@ -31,8 +31,12 @@ export default {
         let randomIndex = this.getRandomIndex(colorList);
         return '#' + colorList[randomIndex];
     },
-    // 获取当前的年-月-日时间
-    getYearMonthDay() {
+    /**
+     * 获取当前的年-月-日时间
+     * @param withOutDay 是否携带日期的信息，默认携带 (可配置true值使得它不携带这个参数)
+     * @returns {string}
+     */
+    getYearMonthDay(withOutDay) {
         let currentDate = new Date();
         // 获取当前的年信息
         let currentYear = currentDate.getFullYear();
@@ -41,7 +45,11 @@ export default {
         // 获取当前的日期信息
         let currentDay = currentDate.getDate();
 
-        return currentYear + "-" + currentMonth + "-" + currentDay;
+        if (withOutDay) {
+            return currentYear + "-" + currentMonth;
+        } else {
+            return currentYear + "-" + currentMonth + "-" + currentDay;
+        }
     },
     // 查看一个路径的末尾是否引入了"/"，【不包含文件名称的路径】(如果有则返回true，反之返回false)
     checkLastSignString(pathWithOutFileName) {

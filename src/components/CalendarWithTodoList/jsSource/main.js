@@ -4,10 +4,27 @@ import Utils from "../../../Utils/common.js";
 const today = moment();
 
 class Calendar {
-    // 构造方法
-    constructor(selector, events) {
+    /**
+     * 构造方法(要求：当前的年月信息格式必须为：'2023-5')
+     * @param selector 选择器，用于绑定页面的div元素
+     * @param todoData todoList列表中的记录数据
+     * @param currentYearAndMonth 当前的年和月的数据(来自外部传输)
+     */
+    constructor(selector, todoData, currentYearAndMonth) {
+        debugger;
         this.el = document.querySelector(selector);
-        this.events = events;
+        // 获取当月的记录(eg: 2023-5)
+        todoData.forEach(item => {
+           if (item.todoDate === currentYearAndMonth) {
+               this.events = item.todoRecord;
+           }
+        });
+
+        if (!this.current) {
+            this.current = [];
+        }
+
+
         this.current = moment().date(1);
         this.draw();
         let current = document.querySelector('.today');
@@ -310,6 +327,10 @@ class Calendar {
     nextMonth() {
         this.current.add('months', 1);
         this.next = true;
+
+        // 将“currentYearAndMonth”调整成上个月
+
+
         this.draw();
     }
 
@@ -317,18 +338,22 @@ class Calendar {
     prevMonth() {
         this.current.subtract('months', 1);
         this.next = false;
+
+        // 将“currentYearAndMonth”调整成下个月
+
+
         this.draw();
     }
 }
 
 export default {
     // 生成一个Calendar示例
-    calendar(id, data) {
+    calendar(id, data, currentYearAndMonth) {
         window.Calendar = Calendar;
         
         window.createElements = this.createElement;
 
-        new Calendar(id, data);
+        new Calendar(id, data, currentYearAndMonth);
     },
 
     createElement(tagName, className, innerText) {
