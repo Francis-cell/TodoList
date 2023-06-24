@@ -45,8 +45,6 @@ class Calendar {
             }
         });
 
-        debugger;
-
         // 2、绘制界面
         //Create Header
         this.drawHeader();

@@ -33,7 +33,7 @@ export default {
     },
     /**
      * 获取当前的年-月-日时间
-     * @param withOutDay 是否携带日期的信息，默认携带 (可配置true值使得它不携带这个参数)
+     * @param withOutDay 是否携带日期的信息，默认不携带 (可配置true值使得它不携带这个参数)
      * @returns {string}
      */
     getYearMonthDay(withOutDay) {
@@ -100,6 +100,7 @@ export default {
      * @param data 需要进行保存的JSON数据信息
      */
     saveTodoListJsonData(data) {
+        debugger;
         // 首先获取当天的"年-月-日"信息
         let dayNow = this.getYearMonthDay();
 
@@ -123,7 +124,7 @@ export default {
      * @param data 如果初始检查json文件不存在，则使用data中的数据初始化这个json文件
      */
     readJsonData(withFileNamePath, data) {
-        // TODO 果没有这个文件，则先创建文件
+        // TODO 如果没有这个文件，则先创建文件
         this.checkFileExist(withFileNamePath, data);
 
         // 读取指定路径下的被压缩的JSON文件的内容(默认采用utf-8格式进行数据的存储和解析)
