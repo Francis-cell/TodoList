@@ -159,9 +159,7 @@
 <script>
     import { ipcRenderer } from 'electron';
     import TimePicker from "@/components/UtilsComponents/TimePicker";
-    import Utils from "@/Utils/common.js";
-    import { initTodoCalendar } from "@/db/tables/CalendarTable";
-    import { sqInsert } from "@/db/database";
+    import Utils from "../../Utils/common.js";
     export default {
         name: "TodoList",
         components: {
@@ -205,7 +203,7 @@
         },
         watch: {
             // todoListValues: {
-            //     handler(newVal, oldVal) {
+            //     handler(oldVal, newVal) {
             //         console.error("----------------");
             //         console.error(oldVal);
             //         console.error(newVal);

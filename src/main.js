@@ -16,3 +16,45 @@ if (debug) {
 // npm run electron:serve -- --debug
 
 createApp(App).mount('#app')
+
+
+// import { app, BrowserWindow } from 'electron';
+// import path from 'path';
+// import { initSqlite } from './db/database';
+//
+// function createWindow() {
+//     const win = new BrowserWindow({
+//         width: 800,
+//         height: 600,
+//         webPreferences: {
+//             preload: path.join(__dirname, 'renderer.js'),
+//             contextIsolation: true,
+//             enableRemoteModule: false,
+//             nodeIntegration: true,
+//         },
+//     });
+//
+//     win.loadFile('index.html');
+// }
+//
+// app.whenReady().then(async () => {
+//     try {
+//         await initSqlite();
+//         createWindow();
+//     } catch (err) {
+//         console.error("Error during application startup:", err);
+//     }
+// });
+//
+//
+// app.on('window-all-closed', () => {
+//     if (process.platform !== 'darwin') {
+//         app.quit();
+//     }
+// });
+//
+// app.on('activate', () => {
+//     if (BrowserWindow.getAllWindows().length === 0) {
+//         createWindow();
+//     }
+// });

@@ -6,7 +6,7 @@
     import "./cssSource/style.css";
     import calendar from "./jsSource/main";
     import Utils from "@/Utils/common";
-    import { initTodoCalendar } from "@/db/tables/CalendarTable";
+    import jsonOperateUtils from "@/Utils/jsonOperateUtils";
     export default {
         name: "CalendarWithTodoList",
         data() {
@@ -74,11 +74,6 @@
             this.calendarInit();
         },
         methods: {
-            initCalendarDataFromDB() {
-                let insertTestData = async () => {
-
-                }
-            },
             /**
              * 生成加载数据
              *
@@ -88,6 +83,9 @@
              * 3、每个月单独形成一个数据文件（以年为单位存储数据到一个文件夹中）;
              */
             initCalendarData() {
+                // 读取json文件，并生成data数据(默认读取当年当月的数据即可，点击上一个月时重新读取数据加载)
+                jsonOperateUtils.moveDayJsonToMonthJson();
+
                 // 1、如果今天是每个月的第一天，则直接读取当前的数据记录(_todoList.json文件)
                 let currentDate = new Date();
                 let currentDay = currentDate.getDate();

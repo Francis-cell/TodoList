@@ -1,7 +1,6 @@
-import { app } from "electron";
-import * as path from "path";
-import * as sqlite3 from "sqlite3";
-import { queryParam, insertParam, updateParam, deleteParam } from "./types";
+const { app } = require('electron');
+const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 
 const userDataPath = app.getPath("userData");
 const dbPath = path.join(userDataPath, "sqliteDatabase.db");
@@ -9,24 +8,27 @@ const dbPath = path.join(userDataPath, "sqliteDatabase.db");
 console.log("Database path:", dbPath);
 
 class Database {
-    private db: sqlite3.Database;
-
     constructor() {
         this.db = new sqlite3.Database(dbPath);
     }
 
-    open(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    open() {
+        return new Promise((resolve, reject) => {
             this.db.serialize(() => {
-                this.db.run("PRAGMA foreign_keys = ON");
-                console.log("Connected to the database.");
-                resolve();
+                this.db.run("PRAGMA foreign_keys = ON", (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        console.log("Connected to the database.");
+                        resolve();
+                    }
+                });
             });
         });
     }
 
-    close(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    close() {
+        return new Promise((resolve, reject) => {
             this.db.close((err) => {
                 if (err) {
                     reject(err);
@@ -38,9 +40,9 @@ class Database {
         });
     }
 
-    query(param: queryParam): Promise<any[]> {
-        return new Promise<any[]>((resolve, reject) => {
-            this.db.all(param.sql, param.params, (err, rows) => {
+    query(param) {
+        return new Promise((resolve, reject) => {
+            this.db.all(param.sql, param.params || [], (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -50,14 +52,12 @@ class Database {
         });
     }
 
-    insert(param: insertParam): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
+    insert(param) {
+        return new Promise((resolve, reject) => {
             const keys = Object.keys(param.data);
             const values = Object.values(param.data);
             const placeholders = keys.map(() => "?").join(",");
-            const sql = `INSERT INTO ${param.table} (${keys.join(
-                ","
-            )}) VALUES (${placeholders})`;
+            const sql = `INSERT INTO ${param.table} (${keys.join(",")}) VALUES (${placeholders})`;
 
             this.db.run(sql, values, function (err) {
                 if (err) {
@@ -69,12 +69,12 @@ class Database {
         });
     }
 
-    update(param: updateParam): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
+    update(param) {
+        return new Promise((resolve, reject) => {
             const entries = Object.entries(param.data)
-                .map(([key, value]) => `${key} = ?`)
+                .map(([key]) => `${key} = ?`)
                 .join(",");
-            const params = Object.values(param.data);
+            const params = [...Object.values(param.data), param.condition];
             const sql = `UPDATE ${param.table} SET ${entries} WHERE ${param.condition}`;
 
             this.db.run(sql, params, function (err) {
@@ -87,8 +87,8 @@ class Database {
         });
     }
 
-    delete(param: deleteParam): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
+    delete(param) {
+        return new Promise((resolve, reject) => {
             const sql = `DELETE FROM ${param.table} WHERE ${param.condition}`;
 
             this.db.run(sql, (err) => {
@@ -104,17 +104,18 @@ class Database {
 
 const db = new Database();
 
-export const initSqlite = async () => {
+// 简单 sqlite 案例
+const initSqlite = async () => {
     try {
         await db.open();
         await db.query({
             sql: `
-      CREATE TABLE IF NOT EXISTS test (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        age INTEGER
-      )
-    `,
+                CREATE TABLE IF NOT EXISTS test (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    age INTEGER
+                )
+            `,
         });
         console.log("Database initialized.");
     } catch (err) {
@@ -122,7 +123,11 @@ export const initSqlite = async () => {
     }
 };
 
-export const sqQuery = db.query.bind(db);
-export const sqInsert = db.insert.bind(db);
-export const sqUpdate = db.update.bind(db);
-export const sqDelete = db.delete.bind(db);
+module.exports = {
+    db,
+    initSqlite,
+    sqQuery: db.query.bind(db),
+    sqInsert: db.insert.bind(db),
+    sqUpdate: db.update.bind(db),
+    sqDelete: db.delete.bind(db),
+};
