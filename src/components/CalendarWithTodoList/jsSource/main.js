@@ -82,7 +82,8 @@ class Calendar {
 
     drawMonth() {
         let self = this;
-
+        alert("this.events--", JSON.stringify(this));
+        alert("this.events--", this.events);
         this.events.forEach(item => {
             // 先获取传输过来的日期的值
             if (item.date && Utils.typeOf(item.date) === 'number') {

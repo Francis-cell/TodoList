@@ -32,8 +32,8 @@ async function createWindow() {
     }
   })
 
-  // // 关闭菜单栏工具
-  // win.removeMenu();
+  // 关闭菜单栏工具
+  win.removeMenu();
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

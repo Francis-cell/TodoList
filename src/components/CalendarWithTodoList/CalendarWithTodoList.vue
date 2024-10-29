@@ -97,14 +97,14 @@
                 else {
                     this.initCurrentMonthTodoData();
                 }
-
             },
             // 日历初始化方法
             calendarInit() {
+                // 初始化信息为空（data 中的信息其实是示例数据）
+                this.todoData = [];
                 // 获取当前的年和月的信息
                 let currentYearAndMonth = Utils.getYearMonthDay(true);
                 // let currentYearAndMonth = '2023-6'
-0
                 calendar.calendar('#calendar', this.todoData, currentYearAndMonth);
             },
             // 初始化当前天单文件的数据

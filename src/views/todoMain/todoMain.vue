@@ -7,10 +7,10 @@
 
         <div class="top-section">
             <div class="left-section">
-                <button class="enable-click" @click="todayTasks">今日任务</button>
+                <button style="background-color: #ff7f7f" class="enable-click buttonBottom" @click="todayTasks">今日任务</button>
             </div>
             <div class="right-section">
-                <button class="enable-click" @click="historyTasks">历史任务</button>
+                <button style="background-color: #80ff80" class="enable-click buttonBottom" @click="historyTasks">历史任务</button>
             </div>
         </div>
     </div>
